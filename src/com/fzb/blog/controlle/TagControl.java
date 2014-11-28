@@ -1,0 +1,22 @@
+ package com.fzb.blog.controlle;
+ 
+ import com.fzb.blog.model.Link;
+import com.fzb.blog.model.Tag;
+ 
+ public class TagControl extends ManageControl
+ {
+   public void delete()
+   {
+     Link.dao.deleteById(getPara(0));
+   }
+ 
+   public void unpdate()
+   {
+   }
+ 
+   public void queryAll()
+   {
+	   renderJson(Tag.dao.queryAll());
+   }
+ }
+
