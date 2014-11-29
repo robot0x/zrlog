@@ -81,22 +81,27 @@ public class QiniuBucketManageImpl implements FileManageAPI {
 
 	@Override
 	public Map<String, Object> create(File file) {
-        PutExtra extra = new PutExtra();
-        // 生成一个新的文件名称  。不是太方便
-        String key = ParseTools.getRandomFileNameByOld(file).getName();
-        try {
-			PutRet ret = IoApi.putFile(getUptoken(), "jpeg/"+file.getName(), file, extra);
-			responseData.put("statusCode", ret.getStatusCode());
-			return responseData;
-		} catch (AuthException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        return null;
-		
+		 // 生成一个新的文件名称  。不是太方便
+        //String key = ParseTools.getRandomFileNameByOld(file).getName();
+		return create(file, null);
+	}
+	@Override
+	public Map<String, Object> create(File file, String key) {
+		  PutExtra extra = new PutExtra();
+	       
+	        try {
+	        	System.out.println(key);
+				PutRet ret = IoApi.putFile(getUptoken(), key, file, extra);
+				responseData.put("statusCode", ret.getStatusCode());
+				return responseData;
+			} catch (AuthException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        return null;
 	}
 
 	@Override
@@ -149,5 +154,7 @@ public class QiniuBucketManageImpl implements FileManageAPI {
 		FileManageAPI bucket=new BaiduBucketManageImpl("a94fzb","94fzb");
 		bucket.create(new File("C:\\Users\\xiaochun\\Pictures\\S41125-170028.jpg"));
 	}
+
+	
 
 }

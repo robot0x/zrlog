@@ -1,10 +1,13 @@
 package com.fzb.blog.controlle;
 
+import com.fzb.api.io.bucket.FileManageAPI;
 import com.fzb.blog.model.Log;
 import com.fzb.blog.model.Tag;
 import com.fzb.blog.model.User;
+import com.fzb.yunstore.QiniuBucketManageImpl;
 import com.jfinal.kit.PathKit;
 import com.jfinal.upload.UploadFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -13,7 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.io.FileUtils;
 
 public class ManageLogControl extends ManageControl
@@ -99,6 +104,10 @@ public class ManageLogControl extends ManageControl
     try {
        FileUtils.moveFile(getFile("imgFile").getFile().getAbsoluteFile(), new File(PathKit.getWebRootPath() + url));
        getData().put("error", Integer.valueOf(0));
+       
+       // put to cloud
+       FileManageAPI man=new QiniuBucketManageImpl("fz-blog");
+       man.create( new File(PathKit.getWebRootPath() + url),url);
        getData().put("url", getRequest().getContextPath() + url);
     } catch (IOException e) {
        getData().put("error", "上传失败了");

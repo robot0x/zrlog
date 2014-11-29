@@ -26,6 +26,8 @@ public interface FileManageAPI {
 	 * @return
 	 */
 	public abstract Map<String,Object> create(File file);
+	
+	public abstract Map<String,Object> create(File file,String key);
 
 	public abstract Map<String,Object> moveOrCopy(String folder, String tag, boolean isMove);
 
