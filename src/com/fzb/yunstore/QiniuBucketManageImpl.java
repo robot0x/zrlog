@@ -1,9 +1,6 @@
 package com.fzb.yunstore;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +8,6 @@ import java.util.Map;
 import org.json.JSONException;
 
 import com.fzb.api.io.bucket.FileManageAPI;
-import com.fzb.common.util.ParseTools;
 import com.qiniu.api.auth.AuthException;
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.fop.ImageInfo;
@@ -88,11 +84,17 @@ public class QiniuBucketManageImpl implements FileManageAPI {
 	@Override
 	public Map<String, Object> create(File file, String key) {
 		  PutExtra extra = new PutExtra();
-	       
 	        try {
-	        	System.out.println(key);
-				PutRet ret = IoApi.putFile(getUptoken(), key, file, extra);
+				PutRet ret = IoApi.putFile(getUptoken(), key.substring(1), file, extra);
 				responseData.put("statusCode", ret.getStatusCode());
+				String url="http://"+BucketUtil.getHostByBN(bucketName, "qiniu")+key;
+				 ImageInfoRet infoRet = ImageInfo.call(url);
+				 if(infoRet.width>600){
+					 url+="?imageView2/2/w/600";
+				 }
+				responseData.put("url", url);
+				
+				
 				return responseData;
 			} catch (AuthException e) {
 				// TODO Auto-generated catch block

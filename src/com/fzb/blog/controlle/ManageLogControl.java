@@ -100,15 +100,15 @@ public class ManageLogControl extends ManageControl
      SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
      String fileExt = getFile("imgFile").getFileName().substring(getFile("imgFile").getFileName().lastIndexOf(".") + 1).toLowerCase();
      SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
-     String url = "/attached/" + sdf.format(new Date()) + "/" + df.format(new Date()) + "_" + new Random().nextInt(1000) + "." + fileExt;
+     String url = "/attached/" +getPara("dir")+"/" + sdf.format(new Date()) + "/" + df.format(new Date()) + "_" + new Random().nextInt(1000) + "." + fileExt;
     try {
        FileUtils.moveFile(getFile("imgFile").getFile().getAbsoluteFile(), new File(PathKit.getWebRootPath() + url));
        getData().put("error", Integer.valueOf(0));
        
        // put to cloud
        FileManageAPI man=new QiniuBucketManageImpl("fz-blog");
-       man.create( new File(PathKit.getWebRootPath() + url),url);
-       getData().put("url", getRequest().getContextPath() + url);
+       String nurl=man.create( new File(PathKit.getWebRootPath() + url),url).get("url").toString();
+       getData().put("url",nurl);
     } catch (IOException e) {
        getData().put("error", "上传失败了");
        e.printStackTrace();

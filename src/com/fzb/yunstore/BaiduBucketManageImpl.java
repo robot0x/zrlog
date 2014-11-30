@@ -112,4 +112,10 @@ public class BaiduBucketManageImpl implements FileManageAPI {
 		return null;
 	}
 
+	@Override
+	public Map<String, Object> create(File file, String key) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
