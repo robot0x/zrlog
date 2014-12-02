@@ -24,11 +24,11 @@ public class QueryLogControl extends BaseControl {
 	}
 
 	public void search() {
-		
 		String key = "";
 		if (getParaToInt(1) == null) {
-			if(getPara("key")==null){
+			if(getPara("key")==null || "".equals(getPara("key"))){
 				all();
+				removeSessionAttr("key");
 				return;
 			}
 			try {
@@ -50,12 +50,18 @@ public class QueryLogControl extends BaseControl {
 		// 记录回话的Key
 		setSessionAttr("key", key);
 		setAttr("yurl", "post/search/" + key + "-");
+		
+		setAttr("tipsType", "搜素");
+		setAttr("tipsName", key);
 	}
 
 	public void record() {
 		setAttr("data", Log.dao.getLogsByData(
 				getParaToInt(1, Integer.valueOf(1)).intValue(), 10, getPara(0)));
 		setAttr("yurl", "post/record/" + getPara(0) + "-");
+		
+		setAttr("tipsType", "存档");
+		setAttr("tipsName", getPara(0));
 	}
 
 	public void detail() {
@@ -79,6 +85,12 @@ public class QueryLogControl extends BaseControl {
 		setAttr("type",
 				Type.dao.findFirst("select * from type where alias='"
 						+ getPara(0) + "'"));
+		setAttr("tipsType", "分类");
+		Type t=Type.dao.findFirst("select * from type where alias='"+ getPara(0) + "'");
+		if(t!=null){
+			setAttr("tipsName", t.getStr("typeName"));
+		}
+		 
 	}
 
 	public void tag() {
@@ -90,6 +102,12 @@ public class QueryLogControl extends BaseControl {
 			e.printStackTrace();
 		}
 		setAttr("yurl", "post/tag/" + getPara(0) + "-");
+		setAttr("tipsType", "标签");
+		try {
+			setAttr("tipsName", URLDecoder.decode(getPara(0), "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void all() {
