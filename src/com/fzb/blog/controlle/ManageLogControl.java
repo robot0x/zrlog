@@ -1,31 +1,28 @@
 package com.fzb.blog.controlle;
 
-import com.fzb.api.io.bucket.FileManageAPI;
-import com.fzb.blog.model.Log;
-import com.fzb.blog.model.Tag;
-import com.fzb.blog.model.User;
-import com.fzb.yunstore.QiniuBucketManageImpl;
-import com.jfinal.kit.PathKit;
-import com.jfinal.upload.UploadFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.io.FileUtils;
+
+import com.fzb.api.io.bucket.FileManageAPI;
+import com.fzb.blog.model.Log;
+import com.fzb.blog.model.Tag;
+import com.fzb.blog.model.User;
+import com.fzb.common.util.ParseTools;
+import com.fzb.yunstore.QiniuBucketManageImpl;
+import com.jfinal.kit.PathKit;
 
 public class ManageLogControl extends ManageControl
 {
   public void list()
   {
-     renderJson(Log.dao.getLogsByPage(getParaToInt("page").intValue(), getParaToInt("rows").intValue()));
+     renderJson(Log.dao.getList(getParaToInt("page").intValue(), getParaToInt("rows").intValue()));
   }
 
   public void write() {
@@ -34,21 +31,23 @@ public class ManageLogControl extends ManageControl
   public void update(){
 	  Integer logId = null;
       logId =Integer.parseInt(getPara("logId"));
-	  
+	  // compare tag
+      System.out.println(logId);
+      System.out.println(getPara("keywords"));
+      String oldTagStr=Log.dao.findById(logId).get("keywords");
+      System.out.println(oldTagStr);
+	  Tag.dao.update(getPara("keywords"), oldTagStr);
 	  Log log=Log.dao.findById(logId);
 	  log.set("content", getPara("content"));
+	  log.set("keywords", getPara("keywords"));
+	  
+	  if (getPara("digest") == null || "".equals(getPara("digest"))) {
+	       log.set("digest",ParseTools.autoDigest(log.get("content").toString(),200));
+	  }
 	 log.update();
 	 renderJson("OK");
   }
-
   public void oper() {
-     if ((getPara("oper") != null) && 
-       (getPara("oper").equals("del"))) {
-       Map log = Log.dao.getLogByLogId(getParaToInt("id").intValue());
-       Tag.dao.deleteTag(log.get("keywords").toString());
-       Log.dao.deleteById(getParaToInt("id"));
-    }
-
      renderJson("OK");
   }
   public void editFrame(){
@@ -59,7 +58,15 @@ public class ManageLogControl extends ManageControl
      log.put("lastLog", Log.dao.getLastLog(logId));
      log.put("nextLog", Log.dao.getNextLog(logId));
      setAttr("log", log);
-	  render("/admin/edit_frame.jsp");
+	 render("/admin/edit_frame.jsp");
+  }
+
+  public void delete(){
+	  Map<String,Object> log = Log.dao.getLogByLogId(getParaToInt("id").intValue());
+      Tag.dao.deleteTag(log.get("keywords").toString());
+      Log.dao.deleteById(getParaToInt("id"));
+      
+      renderJson("OK");
   }
 
   public void add() {
@@ -87,12 +94,16 @@ public class ManageLogControl extends ManageControl
     else {
        log.set("recommended", Boolean.valueOf(false));
     }
-     if (param.get("digest") == null) {
+     
+     // 自动摘要
+     if (param.get("digest") == null || "".equals(param.get("digest"))) {
        log.set("digest", log.get("content"));
     }
 
      Object map = new HashMap();
      ((Map)map).put("add", Boolean.valueOf(log.save()));
+     // 
+     Tag.dao.insertTag(getPara("keywords"));
      renderJson(map);
   }
 

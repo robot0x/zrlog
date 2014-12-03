@@ -1,11 +1,15 @@
  package com.fzb.blog.incp;
  
- import com.fzb.blog.controlle.BaseControl;
- import com.fzb.blog.controlle.QueryLogControl;
- import com.jfinal.aop.PrototypeInterceptor;
- import com.jfinal.core.ActionInvocation;
- import com.jfinal.core.Controller;
- import javax.servlet.http.HttpSession;
+ import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.fzb.blog.controlle.BaseControl;
+import com.fzb.blog.controlle.QueryLogControl;
+import com.fzb.common.util.InstallUtil;
+import com.jfinal.aop.PrototypeInterceptor;
+import com.jfinal.core.ActionInvocation;
+import com.jfinal.kit.PathKit;
  
  /**
  * @author zhengchangchun
@@ -15,7 +19,10 @@ public class LoginInterceptor extends PrototypeInterceptor
  {
    public void doIntercept(ActionInvocation ai)
    {
+	  
 	   if(ai.getController() instanceof BaseControl){
+		   HttpServletRequest request=ai.getController().getRequest();
+		   ai.getController().setAttr("requrl", request.getRequestURL());
 		   ((BaseControl)ai.getController()).initData();
 	   }
      if (ai.getActionKey().startsWith("/post")) {
@@ -54,6 +61,17 @@ public class LoginInterceptor extends PrototypeInterceptor
        else {
          ai.getController().redirect("/admin/login");
        }
+     }
+     
+     else if (ai.getActionKey().startsWith("/install")) {
+    	 System.out.println(!new InstallUtil(PathKit.getWebRootPath()+"/WEB-INF").checkInstall());
+    	 if(!new InstallUtil(PathKit.getWebRootPath()+"/WEB-INF").checkInstall()){
+    		 ai.invoke();
+    	 }
+    	 else{
+			ai.getController().getRequest().getSession();
+			ai.getController().render("/install/forbidden.jsp");
+    	 }
      }
      else{
     	 // 其他情况也放行

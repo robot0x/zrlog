@@ -10,6 +10,7 @@ import com.jfinal.plugin.activerecord.Model;
    private String email;
    private String userName;
    private String password;
+   private String header;
    public static final User dao = new User();
  
    public int getUserId() {
@@ -45,7 +46,16 @@ import com.jfinal.plugin.activerecord.Model;
    }
  
    public User login(String userName, String password) {
+	   
      return (User)findFirst("select * from user where username=? and password=?", new Object[] { userName, password });
    }
+
+public String getHeader() {
+	return header;
+}
+
+public void setHeader(String header) {
+	this.header = header;
+}
  }
 

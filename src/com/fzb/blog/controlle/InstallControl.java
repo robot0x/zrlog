@@ -5,7 +5,6 @@ import java.util.Map;
 
 import com.fzb.common.util.InstallUtil;
 import com.jfinal.core.Controller;
-import com.jfinal.core.JFinal;
 import com.jfinal.kit.PathKit;
 
 public class InstallControl extends Controller{
@@ -31,11 +30,10 @@ public class InstallControl extends Controller{
 	    if(new InstallUtil(PathKit.getWebRootPath()+"/WEB-INF",dbConn,configMsg).installJblog()){
 			 render("/install/success.jsp");
 		}
-	    
 		
 	}
 	
 	public void index(){
-			render("/install/index.jsp");
+		render("/install/index.jsp");
 	} 
 }

@@ -15,7 +15,7 @@
  
    public void queryAll()
    {
-     renderJson(Type.dao.queryAll());
+     renderJson(Type.dao.queryAll(getParaToInt("page"),getParaToInt("rows")));
    }
  }
 

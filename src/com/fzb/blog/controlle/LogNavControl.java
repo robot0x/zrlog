@@ -14,7 +14,9 @@
    }
  
    public void queryAll() {
-     renderJson(LogNav.dao.queryAll());
+     renderJson(LogNav.dao.queryAll(getParaToInt("page"),getParaToInt("rows")));
    }
+   
+   
  }
 

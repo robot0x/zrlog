@@ -16,7 +16,9 @@ import com.fzb.blog.model.Tag;
  
    public void queryAll()
    {
-	   renderJson(Tag.dao.queryAll());
+	   renderJson(Tag.dao.queryAll(getParaToInt("page"),getParaToInt("rows")));
    }
+   
+   
  }
 

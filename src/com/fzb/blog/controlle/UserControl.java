@@ -1,9 +1,9 @@
  package com.fzb.blog.controlle;
  
  import com.fzb.blog.model.Link;
- import com.fzb.blog.model.User;
- import com.fzb.common.util.Md5Util;
- import javax.servlet.http.HttpSession;
+import com.fzb.blog.model.Tag;
+import com.fzb.blog.model.User;
+import com.fzb.common.util.Md5Util;
  
  public class UserControl extends ManageControl
  {
@@ -33,6 +33,8 @@
      {
        render("/admin/login.jsp");
      }
+     
+     
    }
  
    public void logout() {
@@ -43,9 +45,12 @@
    public void login() {
      User user = User.dao.login(getPara("userName"), Md5Util.MD5(getPara("password")));
      if (user != null) {
+    	 System.out.println(user);
        getSession().setAttribute("user", user);
      }
      index();
+     
+     Tag.dao.refreshTag();
    }
  }
 

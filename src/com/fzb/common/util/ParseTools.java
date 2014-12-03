@@ -17,10 +17,17 @@
      return (int)Math.ceil(count / (pageSize * 1.0D));
    }
    public static String autoDigest(String str, int size) {
-     Document document = Jsoup.parse(str);
-     Node localNode;
-     for (Iterator localIterator = document.childNodes().iterator(); localIterator.hasNext(); localNode = (Node)localIterator.next());
-     return document.text();
+	 String digest="";
+   /*  Document document = Jsoup.parse(str);
+     Node localNode = null;
+     for (Iterator localIterator = document.childNodes().iterator(); localIterator.hasNext(); localNode = (Node)localIterator.next()){
+    	 if(localNode!=null){
+    		 digest=localNode.outerHtml();
+    	 }
+    	 System.out.println(localNode);
+     }
+     System.out.println(digest);*/
+     return str;
    }
  
    public static String toISO8601(Date releaseTime) {

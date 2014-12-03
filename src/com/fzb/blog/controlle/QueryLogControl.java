@@ -1,13 +1,12 @@
 package com.fzb.blog.controlle;
 
-import com.fzb.blog.model.Log;
-import com.fzb.blog.model.Type;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+
+import com.fzb.blog.model.Log;
+import com.fzb.blog.model.Type;
 
 public class QueryLogControl extends BaseControl {
 	public void index() {
@@ -36,12 +35,12 @@ public class QueryLogControl extends BaseControl {
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-			setAttr("data", Log.dao.getLogsByTitleOrContent(1, 10, key));
+			setAttr("data", Log.dao.getLogsByTitleOrContent(1, getDefaultRows(), key));
 		} else {
 			try {
 				key = URLDecoder.decode(getPara(0), "UTF-8");
 				setAttr("data", Log.dao.getLogsByTitleOrContent(getParaToInt(1)
-						.intValue(), 10, key));
+						.intValue(), getDefaultRows(), key));
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
@@ -57,7 +56,7 @@ public class QueryLogControl extends BaseControl {
 
 	public void record() {
 		setAttr("data", Log.dao.getLogsByData(
-				getParaToInt(1, Integer.valueOf(1)).intValue(), 10, getPara(0)));
+				getParaToInt(1, Integer.valueOf(1)).intValue(), getDefaultRows(), getPara(0)));
 		setAttr("yurl", "post/record/" + getPara(0) + "-");
 		
 		setAttr("tipsType", "存档");
@@ -80,7 +79,7 @@ public class QueryLogControl extends BaseControl {
 
 	public void sort() {
 		setAttr("data", Log.dao.getLogsBySort(
-				getParaToInt(1, Integer.valueOf(1)).intValue(), 10, getPara(0)));
+				getParaToInt(1, Integer.valueOf(1)).intValue(), getDefaultRows(), getPara(0)));
 		setAttr("yurl", "post/sort/" + getPara(0) + "-");
 		setAttr("type",
 				Type.dao.findFirst("select * from type where alias='"
@@ -90,13 +89,12 @@ public class QueryLogControl extends BaseControl {
 		if(t!=null){
 			setAttr("tipsName", t.getStr("typeName"));
 		}
-		 
 	}
 
 	public void tag() {
 		try {
 			setAttr("data", Log.dao.getLogsByTag(
-					getParaToInt(1, Integer.valueOf(1)).intValue(), 10,
+					getParaToInt(1, Integer.valueOf(1)).intValue(), getDefaultRows(),
 					URLDecoder.decode(getPara(0), "UTF-8")));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -112,7 +110,7 @@ public class QueryLogControl extends BaseControl {
 
 	public void all() {
 		setAttr("data", Log.dao.getLogsByPage(
-				getParaToInt(1, Integer.valueOf(1)).intValue(), 10));
+				getParaToInt(1, Integer.valueOf(1)).intValue(), getDefaultRows()));
 		setAttr("yurl", "post/all-");
 	}
 }
