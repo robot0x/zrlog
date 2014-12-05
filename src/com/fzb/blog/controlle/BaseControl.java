@@ -25,7 +25,9 @@ import com.jfinal.plugin.ehcache.CacheName;
    private String templatePath;
    
    private Integer rows;
- 
+   
+   private Map<String,Object> webSite;
+   
    @Before({CacheInterceptor.class})
    @CacheName("/post/initData")
    public void initData()
@@ -67,6 +69,9 @@ import com.jfinal.plugin.ehcache.CacheName;
      setAttr("init", init);
      this.templatePath = ((Map<String,Object>)init.get("webSite")).get("template").toString();
      this.rows=Integer.parseInt(((Map<String,Object>)init.get("webSite")).get("rows").toString());
+     
+     //
+     webSite=(Map<String, Object>) init.get("webSite");
    }
  
    public String getTemplatePath() {
@@ -75,6 +80,9 @@ import com.jfinal.plugin.ehcache.CacheName;
    
    public Integer getDefaultRows() {
 	     return this.rows;
+   }
+   public Object getValuebyKey(String key){
+	   return webSite.get(key);
    }
  }
 
