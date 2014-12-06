@@ -106,9 +106,10 @@
    }
    public Map<String, Object> getLogsByTag(int page, int pageSize, String tag) {
      Map<String, Object> data = new HashMap<String, Object>();
-     String sql = "select l.*,t.typeName,t.alias  as typeAlias,(select count(commentId) from comment where logId=l.logId) commentSize,u.userName from log l inner join user u,type t where u.userId=l.userId and t.typeId=l.typeId and l.keywords like ? order by l.logId desc limit ?,?";
-     data.put("rows", find(sql, new Object[] { "%" + tag + "%", Integer.valueOf(ParseTools.getFirstRecord(page, pageSize)), Integer.valueOf(pageSize) }));
-     fillData(page, pageSize, "from log l inner join user u,type t where u.userId=l.userId and t.typeId=l.typeId and  l.keywords like ?", data, new Object[] { tag + "%" });
+    // FIXME too many like
+     String sql = "select l.*,t.typeName,t.alias  as typeAlias,(select count(commentId) from comment where logId=l.logId) commentSize,u.userName from log l inner join user u,type t where u.userId=l.userId and t.typeId=l.typeId and (l.keywords like ? or l.keywords like ? or l.keywords like ? or l.keywords= ?) order by l.logId desc limit ?,?";
+     data.put("rows", find(sql, new Object[] {tag + ",%","%," + tag + ",%","%," + tag, tag , Integer.valueOf(ParseTools.getFirstRecord(page, pageSize)), Integer.valueOf(pageSize) }));
+     fillData(page, pageSize, "from log l inner join user u,type t where u.userId=l.userId and t.typeId=l.typeId and  (l.keywords like ? or l.keywords like ? or l.keywords like ? or l.keywords= ?)", data, new Object[] { tag + ",%","%," + tag + ",%","%," + tag, tag });
      return data;
    }
    public Map<String, Object> getLogsByData(int page, int pageSize, String date) {
