@@ -1,6 +1,7 @@
  package com.fzb.blog.incp;
  
- import java.io.IOException;
+ import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,8 +43,14 @@ public class LoginInterceptor extends PrototypeInterceptor
        if (ai.getController().getAttr("log") != null) {
          ai.getController().renderJson(ai.getController().getAttr("log"));
        }
-       else {
+       else if (ai.getController().getAttr("data")!=null){
          ai.getController().renderJson(ai.getController().getAttr("data"));
+       }
+       else{
+    	   Map<String,Object> error=new HashMap<String,Object>();
+    	   error.put("status",500);
+    	   error.put("message","unsupport");
+    	   ai.getController().renderJson(error);
        }
      }
      else if (ai.getActionKey().equals("/")) {

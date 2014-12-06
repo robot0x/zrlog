@@ -1,11 +1,15 @@
  package com.fzb.common.util;
  
- import java.util.Date;
- import java.util.Iterator;
- import java.util.List;
- import org.jsoup.Jsoup;
- import org.jsoup.nodes.Document;
- import org.jsoup.nodes.Node;
+ import java.text.Format;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Node;
  
  public class ParseTools
  {
@@ -33,5 +37,22 @@
    public static String toISO8601(Date releaseTime) {
      return releaseTime.getYear() + 1900 + (releaseTime.getMonth() + 1) + releaseTime.getDate() + "T" + releaseTime.getHours() + releaseTime.getMinutes() + releaseTime.getSeconds() + "+08";
    }
+   
+   public static Date getDataBySdf (String sdfStr,Object dateStr) throws ParseException{
+	   if(dateStr!=null){
+		   SimpleDateFormat sdf=new SimpleDateFormat(sdfStr);
+		   return sdf.parse(dateStr.toString().replace("T"," "));
+	   }
+	   return new Date();
+   }
+   public static void main(String[] args) {
+	try {
+		getDataBySdf("yyyy-MM-dd hh:mm", "2014-03-16T22:57:26+08:00");
+	} catch (ParseException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+}
  }
+
 
