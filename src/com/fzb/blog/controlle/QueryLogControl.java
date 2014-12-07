@@ -71,10 +71,12 @@ public class QueryLogControl extends BaseControl {
 		} catch (NumberFormatException e) {
 			logId = Integer.valueOf(Log.dao.getLogByLogIdAlias(getPara(0)));
 		}
-		log.putAll(Log.dao.getLogByLogId(logId.intValue()));
-		log.put("lastLog", Log.dao.getLastLog(logId.intValue()));
-		log.put("nextLog", Log.dao.getNextLog(logId.intValue()));
-		setAttr("log", log);
+		if(logId!=0){
+			log.putAll(Log.dao.getLogByLogId(logId.intValue()));
+			log.put("lastLog", Log.dao.getLastLog(logId.intValue()));
+			log.put("nextLog", Log.dao.getNextLog(logId.intValue()));
+			setAttr("log", log);
+		}
 	}
 
 	public void sort() {

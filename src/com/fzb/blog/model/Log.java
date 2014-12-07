@@ -20,7 +20,11 @@
    public Map<String, Object> getLogByLogId(int id)
    {
      String sql = "select l.*,u.userName,(select count(commentId) from comment where logId=l.logId) commentSize ,t.alias as typeAlias,t.typeName as typeName  from log l inner join user u,type t where t.typeId=l.typeId and u.userId=l.userId and l.logId=?";
-     return ((Log)findFirst(sql, new Object[] { Integer.valueOf(id) })).getAttrs();
+     Log log=findFirst(sql, new Object[] { id });
+     if(log!=null){
+    	 return log.getAttrs();
+     }
+     return null;
    }
  
    public Log getLastLog(int id)
@@ -45,7 +49,11 @@
  
    public int getLogByLogIdAlias(String alias) {
      String sql = "select l.logId from log l  where l.alias=?";
-     return ((Log)findFirst(sql, new Object[] { alias })).getInt("logId").intValue();
+     Log log=findFirst(sql, new Object[] { alias });
+     if(log!=null){
+    	 return log.getInt("logId").intValue();
+     }
+     return 0;
    }
  
    public int getMaxRecord() {

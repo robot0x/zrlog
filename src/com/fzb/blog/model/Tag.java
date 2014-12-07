@@ -58,12 +58,11 @@ import java.util.Set;
    }
    public boolean insertTag(Set<String> now)
    {
-	   System.out.println("insert");
      for (String add : now) {
     	 System.out.println(add);
        Tag t = (Tag)dao.findFirst("select * from tag where text=?", new Object[] { add });
        if (t == null) {
-         ((Tag)((Tag)dao.set("text", add)).set("count", Integer.valueOf(1))).save();
+         new Tag().set("text", add).set("count", Integer.valueOf(1)).save();
        }
        else {
     	   System.out.println("ggg");

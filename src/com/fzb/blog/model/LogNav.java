@@ -11,10 +11,21 @@ import java.util.Map;
  {
    public static final LogNav dao = new LogNav();
  
-   public List<LogNav> queryAll() {
+   public List<LogNav> queryAll(String baseUrl) {
      String sql = "select l.navId as id,l.navName,l.url,l.sort from  logNav l order by sort";
-     return find(sql);
+     List<LogNav> navs=find(sql);
+     for (LogNav logNav : navs) {
+    	 if(logNav.get("url").toString().startsWith("/")){
+    		 logNav.set("url",baseUrl+logNav.getStr("url") );
+    	 }
+	}
+     return navs;
    }
+   
+   public List<LogNav> queryAll() {
+	     String sql = "select l.navId as id,l.navName,l.url,l.sort from  logNav l order by sort";
+	     return find(sql);
+	   }
    
    public Map<String,Object> queryAll(Integer page,Integer pageSize)
    {

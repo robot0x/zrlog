@@ -27,6 +27,8 @@ public class APIControl extends QueryLogControl
 		String action=getPara("action");
 		String signature=getPara("signature ");
 		
+		System.out.println(action);
+		System.out.println(signature);
 		// 使用签名
 		String urlPath="http://api.duoshuo.com/log/list.json";
 		Map<String,Object> params=new HashMap<String,Object>();
@@ -40,46 +42,25 @@ public class APIControl extends QueryLogControl
 				List<Map<String,Object>> comments=(List<Map<String, Object>>) resp.get("response");
 				for (Map<String, Object> map : comments) {
 					if(map.get("action").equals("create")){
-						System.out.println("dsaf");
 						Map<String,Object> meta=(Map<String, Object>) map.get("meta");
 						new Comment().set("userIp", meta.get("ip")).set("userMail", meta.get("author_email")).set("hide", false).set("commTime", new Date()).set("userComment", meta.get("message")).set("userName", meta.get("author_name")).set("logId", meta.get("thread_key")).set("userHome", meta.get("author_url")).set("td", ParseTools.getDataBySdf("yyyy-MM-dd HH:mm:ss", meta.get("created_at"))).save();
+					}
+					else{
+						System.out.println(map.get("action"));
+						
 					}
 				}
 			}
 			System.out.println(resp);
+			Map<String,Object> map=new HashMap<String, Object>();
+			map.put("status", 200);
+			setAttr("data", map);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		
-	}
-	
-	public static void main(String[] args) {
-		// 使用签名
-		String urlPath="http://api.duoshuo.com/log/list.json";
-		Map<String,Object> params=new HashMap<String,Object>();
-		params.put("short_name", "xchun");
-		params.put("secret", "5b926153aa64bbfb5742792402616830");
-		//params.put("short_name", "xchun.duoshuo.com");
-		//params.put("short_name", "xchun.duoshuo.com");
-		
-		
-		try {
-			Map<String,Object> resp= new JSONDeserializer<Map<String,Object>>().deserialize(HttpUtil.getGResponseText(urlPath, params));
-			
-			if((Integer)resp.get("code")==0){
-				List<Map<String,Object>> comments=(List<Map<String, Object>>) resp.get("response");
-				
-				for (Map<String, Object> map : comments) {
-					if(map.get("action").equals("create")){
-						new Comment().set("userName", map.get("author_name")).set("logId", map.get("thread_key")).set("userHome", map.get("author_url")).set("td", new Date(((Integer)map.get("date"))*1000));
-					}
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 }

@@ -33,12 +33,12 @@ import com.jfinal.plugin.ehcache.CacheName;
    public void initData()
    {
      Map<String,Object> init = CacheKit.get("/post/initData", "initData");
-     if (init == null) {
+     if (init == null || "now".equals(getPara(0)) ) {
        init = new HashMap<String,Object>();
+       init.put("webSite", WebSite.dao.getWebSite());
        init.put("links", Link.dao.queryAll());
        init.put("types", Type.dao.queryAll());
-       init.put("logNavs", LogNav.dao.queryAll());
-       init.put("webSite", WebSite.dao.getWebSite());
+       init.put("logNavs", LogNav.dao.queryAll(getRequest().getScheme()+"://"+getRequest().getHeader("host")+getRequest().getContextPath()));
        init.put("plugins", Plugin.dao.queryAll());
        init.put("archives", Log.dao.getArchives());
        init.put("tags", Tag.dao.queryAll());

@@ -37,13 +37,13 @@ public class HttpUtil extends HttpServlet {
 	
 	public static void main(String[] args) throws IOException{
 		int  i=0;
-		while(i<100){
+		while(i<1){
 		new Thread(){
 			@Override
 			public void run() {
-				String urlPath="http://192.168.0.54:8080/mir/user.do";
+				String urlPath="http://localhost:8080/zrlog/api/duoshuo";
 				 Map<String,Object> params=new HashMap<String,Object>();
-				 params.put("name", "rose");
+				 params.put("action", "rose");
 				 params.put("_method", "login");
 				 params.put("password", "123456");
 				 params.put("registrationID", "777");  

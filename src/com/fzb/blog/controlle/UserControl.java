@@ -49,8 +49,6 @@ import com.fzb.common.util.Md5Util;
        getSession().setAttribute("user", user);
      }
      index();
-     
-     Tag.dao.refreshTag();
    }
  }
 
