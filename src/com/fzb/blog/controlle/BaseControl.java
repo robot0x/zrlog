@@ -84,5 +84,8 @@ import com.jfinal.plugin.ehcache.CacheName;
    public Object getValuebyKey(String key){
 	   return webSite.get(key);
    }
+   public String getStrValuebyKey(String key){
+	   return webSite.get(key).toString();
+   }
  }
 

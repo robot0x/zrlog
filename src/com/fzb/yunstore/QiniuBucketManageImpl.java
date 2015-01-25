@@ -26,8 +26,13 @@ public class QiniuBucketManageImpl implements FileManageAPI {
 	private Map<String,Object> responseData=new HashMap<String,Object>();
 	
 	private String bucketName;
+	private BucketVO bucket;
 	public QiniuBucketManageImpl(String bucketName){
 		this.bucketName=bucketName;
+	}
+	
+	public QiniuBucketManageImpl(BucketVO bucket){
+		this.bucket=bucket;
 	}
 	
 	@Override
@@ -87,7 +92,7 @@ public class QiniuBucketManageImpl implements FileManageAPI {
 	        try {
 				PutRet ret = IoApi.putFile(getUptoken(), key.substring(1), file, extra);
 				responseData.put("statusCode", ret.getStatusCode());
-				String url="http://"+BucketUtil.getHostByBN(bucketName, "qiniu")+key;
+				String url="http://"+bucket.getHost()+key;
 				 ImageInfoRet infoRet = ImageInfo.call(url);
 				 if(infoRet.width>600){
 					 url+="?imageView2/2/w/600";
@@ -140,10 +145,14 @@ public class QiniuBucketManageImpl implements FileManageAPI {
 	}
 	
 	public String getUptoken() throws AuthException, JSONException{
-		 
+		 /*
         Mac mac = new Mac(BucketUtil.getAccessKeyByBN(bucketName, "qiniu"),BucketUtil.getSecretKeyByBN(bucketName, "qiniu"));
         // 请确保该bucket已经存在
-        PutPolicy putPolicy = new PutPolicy(bucketName);
+        PutPolicy putPolicy = new PutPolicy(bucketName);*/
+		
+		Mac mac = new Mac(bucket.getAccessKey(),bucket.getSecretKey());
+	    // 请确保该bucket已经存在
+	    PutPolicy putPolicy = new PutPolicy(bucket.getBucketName());
 		return putPolicy.token(mac);
 	}
 	

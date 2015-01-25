@@ -15,6 +15,7 @@ import com.fzb.blog.model.Log;
 import com.fzb.blog.model.Tag;
 import com.fzb.blog.model.User;
 import com.fzb.common.util.ParseTools;
+import com.fzb.yunstore.BucketVO;
 import com.fzb.yunstore.QiniuBucketManageImpl;
 import com.jfinal.kit.PathKit;
 
@@ -117,7 +118,9 @@ public class ManageLogControl extends ManageControl
        getData().put("error", Integer.valueOf(0));
        
        // put to cloud
-       FileManageAPI man=new QiniuBucketManageImpl("fz-blog");
+       String prefix=getValuebyKey("bucket_type").toString();
+       BucketVO bucket=new BucketVO(getStrValuebyKey(prefix+"_bucket"), getStrValuebyKey(prefix+"_access_key"), getStrValuebyKey(prefix+"_secret_key"), getStrValuebyKey(prefix+"_host"));
+       FileManageAPI man=new QiniuBucketManageImpl(bucket);
        String nurl=man.create( new File(PathKit.getWebRootPath() + url),url).get("url").toString();
        getData().put("url",nurl);
     } catch (IOException e) {
