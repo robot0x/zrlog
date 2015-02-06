@@ -21,10 +21,6 @@ import com.jfinal.kit.PathKit;
 
 public class ManageLogControl extends ManageControl
 {
-  public void list()
-  {
-     renderJson(Log.dao.getList(getParaToInt("page").intValue(), getParaToInt("rows").intValue()));
-  }
 
   public void write() {
      render("/admin/edit.jsp");
@@ -51,9 +47,7 @@ public class ManageLogControl extends ManageControl
 	 log.update();
 	 renderJson("OK");
   }
-  public void oper() {
-     renderJson("OK");
-  }
+ 
   public void editFrame(){
 	  Map log = new HashMap();
      Integer logId = null;
@@ -116,20 +110,35 @@ public class ManageLogControl extends ManageControl
      String fileExt = getFile("imgFile").getFileName().substring(getFile("imgFile").getFileName().lastIndexOf(".") + 1).toLowerCase();
      SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
      String url = "/attached/" +getPara("dir")+"/" + sdf.format(new Date()) + "/" + df.format(new Date()) + "_" + new Random().nextInt(1000) + "." + fileExt;
+    
     try {
        FileUtils.moveFile(getFile("imgFile").getFile().getAbsoluteFile(), new File(PathKit.getWebRootPath() + url));
        getData().put("error", Integer.valueOf(0));
        
        // put to cloud
-       String prefix=getValuebyKey("bucket_type").toString();
-       BucketVO bucket=new BucketVO(getStrValuebyKey(prefix+"_bucket"), getStrValuebyKey(prefix+"_access_key"), getStrValuebyKey(prefix+"_secret_key"), getStrValuebyKey(prefix+"_host"));
-       FileManageAPI man=new QiniuBucketManageImpl(bucket);
-       String nurl=man.create( new File(PathKit.getWebRootPath() + url),url).get("url").toString();
-       getData().put("url",nurl);
+       String prefix=getStrValuebyKey("bucket_type");
+       if(prefix!=null){
+    	   BucketVO bucket=new BucketVO(getStrValuebyKey(prefix+"_bucket"), getStrValuebyKey(prefix+"_access_key"), getStrValuebyKey(prefix+"_secret_key"), getStrValuebyKey(prefix+"_host"));
+           FileManageAPI man=new QiniuBucketManageImpl(bucket);
+           String nurl=man.create( new File(PathKit.getWebRootPath() + url),url).get("url").toString();
+           getData().put("url",nurl);
+       }
+       else{
+    	   if(getRequest().getContextPath()!=null){
+    	    	 url= getRequest().getContextPath()+url;
+    	   }
+    	   getData().put("url",url);
+       }
+       
     } catch (IOException e) {
        getData().put("error", "上传失败了");
        e.printStackTrace();
     }
      renderJson(getData());
   }
+	
+	@Override
+	public void queryAll() {
+		renderJson(Log.dao.getList(getParaToInt("page").intValue(), getParaToInt("rows").intValue()));
+	}
 }

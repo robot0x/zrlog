@@ -12,12 +12,9 @@ import com.fzb.common.util.Md5Util;
      Link.dao.deleteById(getPara(0));
    }
  
-   public void unpdate()
-   {
-   }
- 
    public void queryAll()
    {
+	   
    }
  
    public void index() {
@@ -50,5 +47,18 @@ import com.fzb.common.util.Md5Util;
      }
      index();
    }
+
+	@Override
+	public void add() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
+ 
  }
 

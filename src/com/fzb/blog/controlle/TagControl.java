@@ -10,14 +10,21 @@ import com.fzb.blog.model.Tag;
      Link.dao.deleteById(getPara(0));
    }
  
-   public void unpdate()
-   {
-   }
- 
    public void queryAll()
    {
 	   Tag.dao.refreshTag();
 	   renderJson(Tag.dao.queryAll(getParaToInt("page"),getParaToInt("rows")));
    }
- }
+
+	@Override
+	public void add() {
+		
+	}
+	
+	@Override
+	public void update() {
+		
+	}
+
+}
 

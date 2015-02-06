@@ -11,7 +11,7 @@ import java.util.Map;
    public static final WebSite dao = new WebSite();
  
    public Map<String, Object> getWebSite() {
-     Map webSites = new HashMap();
+     Map<String, Object> webSites = new HashMap<String, Object>();
      List<WebSite> lw = find("select * from website where status=1");
      for (WebSite webSite : lw) {
        webSites.put(webSite.getStr("name"), webSite.get("value"));
@@ -21,8 +21,14 @@ import java.util.Map;
      return webSites;
    }
    public boolean updateByKV(String name,String value){
-	   Db.update("update website set value=? where name=?",value,name);
+	   if(Db.queryInt("select siteid from webSite where name=?",name)!=null){
+		   Db.update("update website set value=? where name=?",value,name);
+	   }
+	   else{
+		   Db.update("insert website(`value`,`name`) value(?,?)",value,name);
+	   }
 	   return true;
+	  
    }
  }
 

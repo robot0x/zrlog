@@ -9,19 +9,22 @@
    {
      Link.dao.deleteById(getPara(0));
    }
- 
-   public void oper() {
-     if (getPara("oper").equals("del")) {
-       String[] ids = ((String[])getParaMap().get("id"))[0].split(",");
-       for (String id : ids) {
-         Comment.dao.deleteById(id);
-       }
-     }
-     renderJson("OK");
-   }
+   
  
    public void queryAll() {
      renderJson(Comment.dao.getCommentsByPage(getParaToInt("page").intValue(), getParaToInt("rows").intValue()));
    }
+
+	@Override
+	public void add() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+	}
+ 
  }
 

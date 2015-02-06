@@ -3,6 +3,7 @@ package com.fzb.blog.controlle;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.fzb.blog.model.LogNav;
 import com.fzb.blog.model.WebSite;
 
 public class WebSiteControl extends ManageControl
@@ -16,6 +17,24 @@ public class WebSiteControl extends ManageControl
 		renderJson(getData());
 		// 更新缓存数据
 		BaseControl.refreshCache();
+	}
+
+	@Override
+	public void add() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void queryAll() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void delete() {
+		// TODO Auto-generated method stub
+		
 	}
 }
 

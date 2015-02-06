@@ -82,10 +82,16 @@ import com.jfinal.plugin.ehcache.CacheName;
 	     return this.rows;
    }
    public Object getValuebyKey(String key){
-	   return webSite.get(key);
+	   if(webSite.get(key)!=null){
+		   return webSite.get(key).toString();
+	   }
+	   return null;
    }
    public String getStrValuebyKey(String key){
-	   return webSite.get(key).toString();
+	   if(webSite.get(key)!=null){
+		   return webSite.get(key).toString();
+	   }
+	   return null;
    }
    
    public static void refreshCache(){

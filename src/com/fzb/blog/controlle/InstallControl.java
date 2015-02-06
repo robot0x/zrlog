@@ -19,14 +19,21 @@ public class InstallControl extends Controller{
 	    if(new InstallUtil(PathKit.getWebRootPath()+"/WEB-INF",dbConn).testDbConn()){
 			 render("/install/message.jsp");
 		}
+	    else{
+	    	setAttr("errorMsg", "请检查数据信息是否正常");
+	    	render("/install/index.jsp");
+	    }
 	}
 	public void installJblog(){
+		String home = getRequest().getScheme() + "://" + getRequest().getHeader("host") +getRequest().getContextPath()+"/";
 		
 		Map<String,String> dbConn=getSessionAttr("dbConn");
 		Map<String,String> configMsg=new HashMap<String,String>();
 	    configMsg.put("webTitle", getPara("webTitle"));
 	    configMsg.put("username", getPara("username"));
-	    configMsg.put("password", "password");
+	    configMsg.put("password", getPara("password"));
+	    configMsg.put("email", getPara("email"));
+	    configMsg.put("home",home);
 	    if(new InstallUtil(PathKit.getWebRootPath()+"/WEB-INF",dbConn,configMsg).installJblog()){
 			 render("/install/success.jsp");
 		}
