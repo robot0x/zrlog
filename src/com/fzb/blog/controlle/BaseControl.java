@@ -33,7 +33,7 @@ import com.jfinal.plugin.ehcache.CacheName;
    public void initData()
    {
      Map<String,Object> init = CacheKit.get("/post/initData", "initData");
-     if (init == null || "now".equals(getPara(0)) ) {
+     if (init == null ) {
        init = new HashMap<String,Object>();
        init.put("webSite", WebSite.dao.getWebSite());
        init.put("links", Link.dao.queryAll());
@@ -86,6 +86,10 @@ import com.jfinal.plugin.ehcache.CacheName;
    }
    public String getStrValuebyKey(String key){
 	   return webSite.get(key).toString();
+   }
+   
+   public static void refreshCache(){
+	   CacheKit.remove("/post/initData", "initData");
    }
  }
 

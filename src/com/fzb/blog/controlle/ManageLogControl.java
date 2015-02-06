@@ -45,6 +45,9 @@ public class ManageLogControl extends ManageControl
 	  if (getPara("digest") == null || "".equals(getPara("digest"))) {
 	       log.set("digest",ParseTools.autoDigest(log.get("content").toString(),200));
 	  }
+	  else{
+		  log.set("digest",getPara("digest"));
+	  }
 	 log.update();
 	 renderJson("OK");
   }

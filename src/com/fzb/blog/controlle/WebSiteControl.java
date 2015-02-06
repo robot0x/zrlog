@@ -14,6 +14,8 @@ public class WebSiteControl extends ManageControl
 		}
 		getData().put("success", true);
 		renderJson(getData());
+		// 更新缓存数据
+		BaseControl.refreshCache();
 	}
 }
 
