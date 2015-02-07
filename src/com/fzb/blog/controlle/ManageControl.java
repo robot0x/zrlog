@@ -13,12 +13,11 @@ import com.fzb.blog.model.Comment;
      return this.data;
    }
    public void oper() {
-	  System.out.println("GGGGGGGGGGGG");
 	  if(getPara("oper")!=null){
 		  if("del".equals(getPara("oper"))){
 			  this.delete();
 		  }
-		  else if("update".equals(getPara("oper"))){
+		  else if("update".equals(getPara("oper")) || "edit".equals(getPara("oper"))){
 			  this.update();
 		  }
 		  else if("add".equals(getPara("oper"))){

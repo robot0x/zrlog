@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.sf.ehcache.concurrent.ConcurrencyUtil;
+
 import com.fzb.blog.controlle.BaseControl;
 import com.fzb.blog.controlle.QueryLogControl;
 import com.fzb.common.util.InstallUtil;
@@ -19,8 +21,7 @@ import com.jfinal.kit.PathKit;
 public class LoginInterceptor extends PrototypeInterceptor
  {
    public void doIntercept(ActionInvocation ai)
-   {
-	  
+   {	
 	   if(ai.getController() instanceof BaseControl){
 		   HttpServletRequest request=ai.getController().getRequest();
 		   ai.getController().setAttr("requrl", request.getRequestURL());
@@ -66,7 +67,8 @@ public class LoginInterceptor extends PrototypeInterceptor
          ai.invoke();
        }
        else {
-         ai.getController().redirect("/admin/login");
+         ai.getController().redirect(ai.getController().getRequest().getContextPath()+"/admin/login?redirectFrom="+ai.getController().getRequest().getRequestURL());
+    	 //ai.getController().redirect("/admin/login");
        }
      }
      

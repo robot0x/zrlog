@@ -7,7 +7,10 @@
  {
    public void delete()
    {
-     Link.dao.deleteById(getPara(0));
+	 String[] ids=getPara("id").split(",");
+	 for (String id : ids) {
+		Comment.dao.deleteById(id);
+	 }
    }
    
  

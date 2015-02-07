@@ -6,7 +6,7 @@
  {
    public void delete()
    {
-     Type.dao.deleteById(getPara(0));
+     Type.dao.deleteById(getPara("id"));
    }
  
    public void queryAll()
@@ -21,7 +21,7 @@
 	
 	@Override
 	public void update() {
-		Type.dao.set("typeName", getPara("typeName")).set("alias", getPara("alias")).set("remark", getPara("remark")).update();
+		Type.dao.set("typeId", getPara("id")).set("typeName", getPara("typeName")).set("alias", getPara("alias")).set("remark", getPara("remark")).update();
 	}
 }
 

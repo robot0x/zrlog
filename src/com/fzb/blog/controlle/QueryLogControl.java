@@ -25,7 +25,7 @@ public class QueryLogControl extends BaseControl {
 	public void search() {
 		String key = "";
 		if (getParaToInt(1) == null) {
-			if(getPara("key")==null || "".equals(getPara("key"))){
+			if (getPara("key") == null || "".equals(getPara("key"))) {
 				all();
 				removeSessionAttr("key");
 				return;
@@ -35,7 +35,8 @@ public class QueryLogControl extends BaseControl {
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-			setAttr("data", Log.dao.getLogsByTitleOrContent(1, getDefaultRows(), key));
+			setAttr("data",
+					Log.dao.getLogsByTitleOrContent(1, getDefaultRows(), key));
 		} else {
 			try {
 				key = URLDecoder.decode(getPara(0), "UTF-8");
@@ -49,16 +50,17 @@ public class QueryLogControl extends BaseControl {
 		// 记录回话的Key
 		setSessionAttr("key", key);
 		setAttr("yurl", "post/search/" + key + "-");
-		
+
 		setAttr("tipsType", "搜素");
 		setAttr("tipsName", key);
 	}
 
 	public void record() {
 		setAttr("data", Log.dao.getLogsByData(
-				getParaToInt(1, Integer.valueOf(1)).intValue(), getDefaultRows(), getPara(0)));
+				getParaToInt(1, Integer.valueOf(1)).intValue(),
+				getDefaultRows(), getPara(0)));
 		setAttr("yurl", "post/record/" + getPara(0) + "-");
-		
+
 		setAttr("tipsType", "存档");
 		setAttr("tipsName", getPara(0));
 	}
@@ -71,7 +73,7 @@ public class QueryLogControl extends BaseControl {
 		} catch (NumberFormatException e) {
 			logId = Integer.valueOf(Log.dao.getLogByLogIdAlias(getPara(0)));
 		}
-		if(logId!=0){
+		if (logId != 0) {
 			log.putAll(Log.dao.getLogByLogId(logId.intValue()));
 			log.put("lastLog", Log.dao.getLastLog(logId.intValue()));
 			log.put("nextLog", Log.dao.getNextLog(logId.intValue()));
@@ -81,14 +83,16 @@ public class QueryLogControl extends BaseControl {
 
 	public void sort() {
 		setAttr("data", Log.dao.getLogsBySort(
-				getParaToInt(1, Integer.valueOf(1)).intValue(), getDefaultRows(), getPara(0)));
+				getParaToInt(1, Integer.valueOf(1)).intValue(),
+				getDefaultRows(), getPara(0)));
 		setAttr("yurl", "post/sort/" + getPara(0) + "-");
 		setAttr("type",
 				Type.dao.findFirst("select * from type where alias='"
 						+ getPara(0) + "'"));
 		setAttr("tipsType", "分类");
-		Type t=Type.dao.findFirst("select * from type where alias='"+ getPara(0) + "'");
-		if(t!=null){
+		Type t = Type.dao.findFirst("select * from type where alias='"
+				+ getPara(0) + "'");
+		if (t != null) {
 			setAttr("tipsName", t.getStr("typeName"));
 		}
 	}
@@ -96,8 +100,8 @@ public class QueryLogControl extends BaseControl {
 	public void tag() {
 		try {
 			setAttr("data", Log.dao.getLogsByTag(
-					getParaToInt(1, Integer.valueOf(1)).intValue(), getDefaultRows(),
-					URLDecoder.decode(getPara(0), "UTF-8")));
+					getParaToInt(1, Integer.valueOf(1)).intValue(),
+					getDefaultRows(), URLDecoder.decode(getPara(0), "UTF-8")));
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
@@ -112,7 +116,8 @@ public class QueryLogControl extends BaseControl {
 
 	public void all() {
 		setAttr("data", Log.dao.getLogsByPage(
-				getParaToInt(1, Integer.valueOf(1)).intValue(), getDefaultRows()));
+				getParaToInt(1, Integer.valueOf(1)).intValue(),
+				getDefaultRows()));
 		setAttr("yurl", "post/all-");
 	}
 }
