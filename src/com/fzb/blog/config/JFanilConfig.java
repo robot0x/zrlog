@@ -20,6 +20,7 @@ import com.jfinal.config.Interceptors;
 import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
+import com.jfinal.ext.interceptor.SessionInViewInterceptor;
 import com.jfinal.i18n.I18N;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
@@ -47,6 +48,7 @@ public class JFanilConfig extends JFinalConfig {
 	}
 
 	public void configInterceptor(Interceptors incp) {
+		incp.add(new SessionInViewInterceptor());
 		incp.add(new LoginInterceptor());
 	}
 

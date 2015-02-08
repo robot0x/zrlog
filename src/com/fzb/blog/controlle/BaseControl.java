@@ -36,7 +36,6 @@ public class BaseControl extends Controller {
 			init = new HashMap<String, Object>();
 			init.put("webSite", WebSite.dao.getWebSite());
 			init.put("links", Link.dao.queryAll());
-			init.put("comments", Comment.dao.noRead(1, 5));
 			init.put("types", Type.dao.queryAll());
 			init.put(
 					"logNavs",

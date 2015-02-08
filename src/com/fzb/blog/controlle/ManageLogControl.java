@@ -60,7 +60,7 @@ public class ManageLogControl extends ManageControl {
 			log.set("digest", log.get("content"));
 		}
 		
-		setSessionAttr("tempLog", log);
+		setSessionAttr("log", log);
 		Object map = new HashMap<String,Object>();
 		((Map) map).put("add", Boolean.valueOf(true));
 		renderJson(map);

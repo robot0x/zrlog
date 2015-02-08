@@ -39,6 +39,7 @@ public class UserControl extends ManageControl {
 				Md5Util.MD5(getPara("password")));
 		if (user != null) {
 			getSession().setAttribute("user", user);
+			getSession().setAttribute("comments", Comment.dao.noRead(1, 5));
 			if (getPara("redirectFrom") != null
 					&& !"".equals(getPara("redirectFrom"))) {
 				redirect(getPara("redirectFrom"));
