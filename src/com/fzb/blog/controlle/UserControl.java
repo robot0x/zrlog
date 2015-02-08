@@ -19,7 +19,7 @@ public class UserControl extends ManageControl {
 	public void index() {
 		if (getSessionAttr("user") != null) {
 			if (getPara(0) == null) {
-				redirect("/admin/index");
+				render("/admin/index.jsp");
 			} else {
 				render("/admin/" + getPara(0) + ".jsp");
 			}
@@ -35,18 +35,24 @@ public class UserControl extends ManageControl {
 	}
 
 	public void login() {
-		User user = User.dao.login(getPara("userName"),
-				Md5Util.MD5(getPara("password")));
-		if (user != null) {
-			getSession().setAttribute("user", user);
-			getSession().setAttribute("comments", Comment.dao.noRead(1, 5));
-			if (getPara("redirectFrom") != null
-					&& !"".equals(getPara("redirectFrom"))) {
-				redirect(getPara("redirectFrom"));
+		if(getPara("userName")!=null && getPara("password")!=null){
+			User user = User.dao.login(getPara("userName"),
+					Md5Util.MD5(getPara("password")));
+			if (user != null) {
+				getSession().setAttribute("user", user);
+				getSession().setAttribute("comments", Comment.dao.noRead(1, 5));
+				if (getPara("redirectFrom") != null
+						&& !"".equals(getPara("redirectFrom"))) {
+					redirect(getPara("redirectFrom"));
+					return;
+				}
+			} else {
+				setAttr("errorMsg", "用户名或密码错误");
 			}
-		} else {
-			index();
 		}
+		index();
+		
+		
 	}
 
 	@Override

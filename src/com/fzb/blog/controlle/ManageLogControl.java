@@ -70,15 +70,25 @@ public class ManageLogControl extends ManageControl {
 		Integer logId = null;
 		logId = Integer.parseInt(getPara("logId"));
 		// compare tag
-		System.out.println(logId);
-		System.out.println(getPara("keywords"));
 		String oldTagStr = Log.dao.findById(logId).get("keywords");
-		System.out.println(oldTagStr);
 		Tag.dao.update(getPara("keywords"), oldTagStr);
 		Log log = Log.dao.findById(logId);
-		log.set("content", getPara("content"));
-		log.set("keywords", getPara("keywords"));
-
+		Map<String, String[]> param = getRequest().getParameterMap();
+		for (Map.Entry tmap : param.entrySet()) {
+			log.set((String) tmap.getKey(), ((String[]) tmap.getValue())[0]);
+		}
+		
+		if (param.get("canComment") != null) {
+			log.set("canComment", Boolean.valueOf(true));
+		} else {
+			log.set("canComment", Boolean.valueOf(false));
+		}
+		if (param.get("recommended") != null) {
+			log.set("recommended", Boolean.valueOf(true));
+		} else {
+			log.set("recommended", Boolean.valueOf(false));
+		}
+		
 		if (getPara("digest") == null || "".equals(getPara("digest"))) {
 			log.set("digest",
 					ParseTools.autoDigest(log.get("content").toString(), 200));

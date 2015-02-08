@@ -132,12 +132,14 @@ public class InstallUtil {
 				}
 				
 			}
-			String insertWebSql="INSERT INTO `website` (`siteId`, `name`,`status`, `value`, `remark`) VALUES (1, 'rows',?, '10', NULL),(2, 'title',?, '"+configMsg.get("webTitle")+"', NULL),(8, 'template',?, '/include/templates/default', NULL)";
+			String insertWebSql="INSERT INTO `website` (`siteId`, `name`,`status`, `value`, `remark`) VALUES (1, 'rows',?, '10', NULL),(2, 'title',?, '"+configMsg.get("title")+"', NULL),(3, 'second_title',?, '"+configMsg.get("second_title")+"', NULL),(4, 'home',?, '"+configMsg.get("home")+"', NULL),(8, 'template',?, '/include/templates/default', NULL)";
 			
 			PreparedStatement ps=connect.prepareStatement(insertWebSql);
 			ps.setBoolean(1, true);
 			ps.setBoolean(2, true);
 			ps.setBoolean(3, true);
+			ps.setBoolean(4, true);
+			ps.setBoolean(5, true);
 			ps.executeUpdate();
 			String insertUserSql="INSERT INTO `user`( `userId`,`userName`, `password`, `email`) VALUES (1,?,?,?)";
 			ps=connect.prepareStatement(insertUserSql);

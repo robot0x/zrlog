@@ -15,12 +15,12 @@
 
 	@Override
 	public void add() {
-		LogNav.dao.set("navName", getPara("navName")).set("url", getPara("url")).set("sort", getParaToInt("sort")).save();
+		new LogNav().set("navName", getPara("navName")).set("url", getPara("url")).set("sort", getParaToInt("sort")).save();
 	}
 	
 	@Override
 	public void update() {
-		LogNav.dao.set("navName", getPara("navName")).set("url", getPara("url")).set("sort", getParaToInt("sort")).update();
+		new LogNav().set("navId", getPara("id")).set("navName", getPara("navName")).set("url", getPara("url")).set("sort", getParaToInt("sort")).update();
 	}
    
  }

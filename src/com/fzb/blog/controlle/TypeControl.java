@@ -16,12 +16,12 @@
 
 	@Override
 	public void add() {
-		Type.dao.set("typeName", getPara("typeName")).set("alias", getPara("alias")).set("remark", getPara("remark")).save();
+		new Type().set("typeName", getPara("typeName")).set("alias", getPara("alias")).set("remark", getPara("remark")).save();
 	}
 	
 	@Override
 	public void update() {
-		Type.dao.set("typeId", getPara("id")).set("typeName", getPara("typeName")).set("alias", getPara("alias")).set("remark", getPara("remark")).update();
+		new Type().set("typeId", getPara("id")).set("typeName", getPara("typeName")).set("alias", getPara("alias")).set("remark", getPara("remark")).update();
 	}
 }
 
