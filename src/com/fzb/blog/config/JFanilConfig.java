@@ -20,6 +20,7 @@ import com.jfinal.config.Interceptors;
 import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;
 import com.jfinal.config.Routes;
+import com.jfinal.core.JFinal;
 import com.jfinal.ext.interceptor.SessionInViewInterceptor;
 import com.jfinal.i18n.I18N;
 import com.jfinal.kit.PathKit;
@@ -78,6 +79,7 @@ public class JFanilConfig extends JFinalConfig {
 			// 添加QuartzPlugin 用于定时生成 sitemap.xml
 			plugins.add(new EhCachePlugin());
 			plugins.add(new QuartzPlugin());
+			JFinal.me().getServletContext().setAttribute("plugins", plugins);
 		} catch (Exception e) {
 
 		}
