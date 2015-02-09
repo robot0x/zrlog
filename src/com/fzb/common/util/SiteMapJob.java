@@ -16,6 +16,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import com.fzb.blog.model.Log;
+import com.fzb.blog.model.WebSite;
+import com.jfinal.core.JFinal;
  
  public class SiteMapJob
    implements Job
@@ -24,7 +26,7 @@ import com.fzb.blog.model.Log;
      throws JobExecutionException
    {
      String webDiskPath = (String)context.getJobDetail().getJobDataMap().get("webDiskPath");
-     String webHome = (String)context.getJobDetail().getJobDataMap().get("webHome");
+     String webHome = ((WebSite)JFinal.me().getServletContext().getAttribute("webSite")).get("home");
      List<Object[]> logs = Log.dao.getAllAlias();
      Document doc = new Document();
      Element root = new Element("urlset");

@@ -12,10 +12,10 @@ import java.util.Map;
  
    public Map<String, Object> getWebSite() {
      Map<String, Object> webSites = new HashMap<String, Object>();
-     List<WebSite> lw = find("select * from website where status=1");
+     List<WebSite> lw = find("select * from website");
      for (WebSite webSite : lw) {
        webSites.put(webSite.getStr("name"), webSite.get("value"));
-       webSites.put(webSite.getStr("name") + "Status", webSite.get("value"));
+       webSites.put(webSite.getStr("name") + "Status", webSite.get("status"));
        webSites.put(webSite.getStr("name") + "Remark", webSite.get("remark"));
      }
      return webSites;

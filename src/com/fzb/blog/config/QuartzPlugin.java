@@ -1,14 +1,9 @@
 package com.fzb.blog.config;
 
-import com.fzb.common.util.MailJob;
-import com.fzb.common.util.SiteMapJob;
-import com.jfinal.core.JFinal;
-import com.jfinal.plugin.IPlugin;
-import javax.servlet.ServletContext;
+import org.apache.log4j.Logger;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -16,7 +11,14 @@ import org.quartz.SchedulerFactory;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
 
+import com.fzb.common.util.MailJob;
+import com.fzb.common.util.SiteMapJob;
+import com.jfinal.core.JFinal;
+import com.jfinal.plugin.IPlugin;
+
 public class QuartzPlugin implements IPlugin {
+	private static Logger log=Logger.getLogger(QuartzPlugin.class);
+	
 	private Scheduler scher;
 
 	public boolean start() {
@@ -28,11 +30,13 @@ public class QuartzPlugin implements IPlugin {
 			JobDetail siteMapJob = JobBuilder.newJob(SiteMapJob.class)
 					.withIdentity("siteMap", "util").build();
 
-			job.getJobDataMap().put("webSite",
+			/*job.getJobDataMap().put("webSite",
 					JFinal.me().getServletContext().getAttribute("webSite"));
-
+			WebSite site=WebSite.dao.findFirst("select value from webSite where name='home'");
+			
+			log.info("site address --> "+ site.get("value"));
 			siteMapJob.getJobDataMap().put("webHome",
-					"http://blog.94fzb.com:8080");
+					site.getStr("value"));*/
 			siteMapJob.getJobDataMap().put("webDiskPath",
 					JFinal.me().getServletContext().getRealPath("sitemap.xml"));
 			CronTrigger trigger = (CronTrigger) TriggerBuilder

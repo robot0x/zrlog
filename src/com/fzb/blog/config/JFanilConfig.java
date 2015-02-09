@@ -63,12 +63,7 @@ public class JFanilConfig extends JFinalConfig {
 					.checkInstall()) {
 			}
 			plugins.add(c3p0Plugin);
-			// 添加QuartzPlugin 用于定时生成 sitemap.xml
-			plugins.add(new EhCachePlugin());
-			plugins.add(new QuartzPlugin());
-			// 添加表与实体的映射关系
 			ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
-			plugins.add(arp);
 			arp.addMapping("user", "userId", User.class);
 			arp.addMapping("log", "logId", Log.class);
 			arp.addMapping("type", "typeId", Type.class);
@@ -78,6 +73,11 @@ public class JFanilConfig extends JFinalConfig {
 			arp.addMapping("website", "siteId", WebSite.class);
 			arp.addMapping("plugin", "pluginId", Plugin.class);
 			arp.addMapping("tag", "tagId", Tag.class);
+			// 添加表与实体的映射关系
+			plugins.add(arp);
+			// 添加QuartzPlugin 用于定时生成 sitemap.xml
+			plugins.add(new EhCachePlugin());
+			plugins.add(new QuartzPlugin());
 		} catch (Exception e) {
 
 		}
