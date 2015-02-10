@@ -10,11 +10,11 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
-import com.fzb.api.io.bucket.FileManageAPI;
 import com.fzb.blog.model.Log;
 import com.fzb.blog.model.Tag;
 import com.fzb.blog.model.User;
 import com.fzb.common.util.ParseTools;
+import com.fzb.io.api.FileManageAPI;
 import com.fzb.yunstore.BucketVO;
 import com.fzb.yunstore.QiniuBucketManageImpl;
 import com.jfinal.kit.PathKit;

@@ -1,4 +1,4 @@
-package com.fzb.blog.config;
+package com.fzb.blog.util.plugin;
 
 import org.apache.log4j.Logger;
 import org.quartz.CronScheduleBuilder;

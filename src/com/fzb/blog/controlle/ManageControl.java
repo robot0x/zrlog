@@ -38,6 +38,10 @@ public abstract class ManageControl extends BaseControl {
 	public void setData(Map<String, Object> data) {
 		this.data = data;
 	}
+	
+	public void put(String key,Object value){
+		data.put(key, value);
+	}
 
 	public abstract void add();
 

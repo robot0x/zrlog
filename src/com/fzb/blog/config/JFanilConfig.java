@@ -13,6 +13,7 @@ import com.fzb.blog.model.Tag;
 import com.fzb.blog.model.Type;
 import com.fzb.blog.model.User;
 import com.fzb.blog.model.WebSite;
+import com.fzb.blog.util.plugin.QuartzPlugin;
 import com.fzb.common.util.InstallUtil;
 import com.jfinal.config.Constants;
 import com.jfinal.config.Handlers;

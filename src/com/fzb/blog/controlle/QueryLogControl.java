@@ -2,9 +2,11 @@ package com.fzb.blog.controlle;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Log;
 import com.fzb.blog.model.Type;
 
@@ -65,18 +67,33 @@ public class QueryLogControl extends BaseControl {
 		setAttr("tipsName", getPara(0));
 	}
 
+	
+	public void addComment(){
+		//FIXME　如果过滤垃圾信息
+		new Comment().set("userHome", getPara("userHome")).set("userMail", getPara("userMail"))
+					.set("userIp", getRequest().getRemoteAddr()).set("userName", getPara("userName"))
+					.set("logId", getPara("logId")).set("userComment", getPara("userComment")).set("commTime", new Date()).set("hide", 1).save();
+		detail();
+	}
+	
 	public void detail() {
 		Map log = new HashMap();
 		Integer logId = null;
 		try {
 			logId = getParaToInt(0);
+			if(logId==null){
+				logId=getParaToInt("logId");
+			}
 		} catch (NumberFormatException e) {
 			logId = Integer.valueOf(Log.dao.getLogByLogIdAlias(getPara(0)));
 		}
 		if (logId != 0) {
+			
+			Log.dao.clickChange(logId);
 			log.putAll(Log.dao.getLogByLogId(logId.intValue()));
 			log.put("lastLog", Log.dao.getLastLog(logId.intValue()));
 			log.put("nextLog", Log.dao.getNextLog(logId.intValue()));
+			log.put("comments", Comment.dao.getCommentsByLogId(logId));
 			setAttr("log", log);
 		}
 	}

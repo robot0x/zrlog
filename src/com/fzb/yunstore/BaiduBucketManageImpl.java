@@ -21,7 +21,7 @@ import com.baidu.inf.iis.bcs.http.HttpMethodName;
 import com.baidu.inf.iis.bcs.model.ObjectMetadata;
 import com.baidu.inf.iis.bcs.request.GenerateUrlRequest;
 import com.baidu.inf.iis.bcs.request.PutObjectRequest;
-import com.fzb.api.io.bucket.FileManageAPI;
+import com.fzb.io.api.FileManageAPI;
 
 public class BaiduBucketManageImpl implements FileManageAPI {
 

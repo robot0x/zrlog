@@ -15,7 +15,7 @@ import java.util.Map;
      List<WebSite> lw = find("select * from website");
      for (WebSite webSite : lw) {
        webSites.put(webSite.getStr("name"), webSite.get("value"));
-       webSites.put(webSite.getStr("name") + "Status", webSite.get("status"));
+       webSites.put(webSite.getStr("name") + "Status", webSite.getBoolean("status"));
        webSites.put(webSite.getStr("name") + "Remark", webSite.get("remark"));
      }
      return webSites;

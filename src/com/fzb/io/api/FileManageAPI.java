@@ -1,4 +1,4 @@
-package com.fzb.api.io.bucket;
+package com.fzb.io.api;
 
 import java.io.File;
 import java.io.InputStream;

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.fzb.blog.controlle.api.Constant;
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;
 import com.fzb.blog.model.Log;
@@ -21,7 +22,7 @@ import com.jfinal.plugin.ehcache.CacheInterceptor;
 import com.jfinal.plugin.ehcache.CacheKit;
 import com.jfinal.plugin.ehcache.CacheName;
 
-public class BaseControl extends Controller {
+public class BaseControl extends Controller implements Constant {
 	private String templatePath;
 
 	private Integer rows;
@@ -102,5 +103,17 @@ public class BaseControl extends Controller {
 
 	public static void refreshCache() {
 		CacheKit.remove("/post/initData", "initData");
+	}
+	
+	public boolean isNullOrEmptyStr(Object... args){
+		for (Object arg : args) {
+			if(arg==null){
+				return false;
+			}
+			else if("".equals(arg)){
+				return false;
+			}
+		}
+		return true;
 	}
 }

@@ -62,6 +62,10 @@ public class LoginInterceptor extends PrototypeInterceptor
        if (ai.getController().getSession().getAttribute("user") != null) {
          ai.getController().setAttr("user", ai.getController().getSession().getAttribute("user"));
          ai.invoke();
+         // 存在消息提示
+         if(ai.getController().getRequest().getAttribute("message")!=null){
+        	 ai.getController().render("/admin/message.jsp");
+         }
        }
        else if (ai.getMethodName().equals("login")) {
          ai.invoke();

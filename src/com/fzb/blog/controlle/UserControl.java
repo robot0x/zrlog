@@ -2,8 +2,6 @@ package com.fzb.blog.controlle;
 
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;
-import com.fzb.blog.model.Log;
-import com.fzb.blog.model.Tag;
 import com.fzb.blog.model.User;
 import com.fzb.common.util.Md5Util;
 
@@ -62,11 +60,28 @@ public class UserControl extends ManageControl {
 
 	@Override
 	public void update() {
-
+		
 	}
 
 	public void changePassword() {
-		//TODO 实现变更密码
+		
+		if(isNullOrEmptyStr(getPara("oldPassword"),getPara("newPassword"))){
+			// compare oldPasswd
+			String userName=((User)getSessionAttr("user")).getStr("userName");
+			String dbPassword=User.dao.getPasswordByName(userName);
+			String oldPassword=getPara("oldPassword");
+			if(Md5Util.MD5(oldPassword).equals(dbPassword)){
+				User.dao.updatePassword(userName, Md5Util.MD5(getPara("newPassword")));
+				setAttr("message", CHANGEPWDSUCC);
+			}
+			else{
+				setAttr("message", OLDPWDERROR);
+			}
+		}
+		else{
+			setAttr("message", ARGSCHECKFAIL);
+		}
+		
 	}
 
 }

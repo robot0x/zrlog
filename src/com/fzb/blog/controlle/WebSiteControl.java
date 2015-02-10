@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.fzb.blog.config.QuartzPlugin;
 import com.fzb.blog.model.LogNav;
 import com.fzb.blog.model.WebSite;
+import com.fzb.blog.util.plugin.QuartzPlugin;
 import com.fzb.common.util.SiteMapJob;
 import com.jfinal.config.Plugins;
 import com.jfinal.core.JFinal;
@@ -26,7 +26,7 @@ public class WebSiteControl extends ManageControl
 	}
 	
 	public void siteMapPlugin(){
-		if(getPara("disable")!=null && !"".equals(getPara("disable"))){
+		if(isNullOrEmptyStr(getPara("disable"))){
 			List<IPlugin> plugins=((Plugins)JFinal.me().getServletContext().getAttribute("plugins")).getPluginList();
 			for (IPlugin plugin : plugins) {
 				if(plugin.getClass().getSimpleName().equals(QuartzPlugin.class.getSimpleName())){
@@ -36,8 +36,16 @@ public class WebSiteControl extends ManageControl
 				}
 			}
 			getData().put("success", true);
-			renderJson(getData());
+			setAttr("message", "插件停用成功");
 		}
+		else{
+			List<IPlugin> plugins=((Plugins)JFinal.me().getServletContext().getAttribute("plugins")).getPluginList();
+			IPlugin plugin=new QuartzPlugin();
+			plugin.start();
+			plugins.add(plugin);
+			setAttr("message", "插件启用成功");
+		}
+		 
 	}
 
 	@Override

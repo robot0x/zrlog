@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.json.JSONException;
 
-import com.fzb.api.io.bucket.FileManageAPI;
+import com.fzb.io.api.FileManageAPI;
 import com.qiniu.api.auth.AuthException;
 import com.qiniu.api.auth.digest.Mac;
 import com.qiniu.api.fop.ImageInfo;
