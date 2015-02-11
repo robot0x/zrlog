@@ -8,18 +8,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.SQLData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.Properties;
 
-import com.fzb.blog.model.Log;
-import com.fzb.blog.model.Plugin;
-import com.jfinal.core.JFinal;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 
 public class InstallUtil {
@@ -180,6 +175,7 @@ public class InstallUtil {
 			String inserTag="INSERT INTO `tag`(`tagId`,`text`,`count`) VALUES (1,'记录',1)";
 			ps=connect.prepareStatement(inserTag);
 			ps.executeUpdate();
+			//TODO 重新注册C3P0Plugin 
 			return true;
 		} catch (FileNotFoundException e) {
 			lock.delete();

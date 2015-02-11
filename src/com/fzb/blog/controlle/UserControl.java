@@ -65,7 +65,7 @@ public class UserControl extends ManageControl {
 
 	public void changePassword() {
 		
-		if(isNullOrEmptyStr(getPara("oldPassword"),getPara("newPassword"))){
+		if(isNotNullOrNotEmptyStr(getPara("oldPassword"),getPara("newPassword"))){
 			// compare oldPasswd
 			String userName=((User)getSessionAttr("user")).getStr("userName");
 			String dbPassword=User.dao.getPasswordByName(userName);

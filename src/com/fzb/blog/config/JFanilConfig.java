@@ -1,5 +1,13 @@
 package com.fzb.blog.config;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.fzb.blog.controlle.APIControl;
 import com.fzb.blog.controlle.InstallControl;
 import com.fzb.blog.controlle.QueryLogControl;
@@ -13,7 +21,8 @@ import com.fzb.blog.model.Tag;
 import com.fzb.blog.model.Type;
 import com.fzb.blog.model.User;
 import com.fzb.blog.model.WebSite;
-import com.fzb.blog.util.plugin.QuartzPlugin;
+import com.fzb.blog.util.plugin.PluginsUtil;
+import com.fzb.blog.util.plugin.api.IZrlogPlugin;
 import com.fzb.common.util.InstallUtil;
 import com.jfinal.config.Constants;
 import com.jfinal.config.Handlers;
@@ -26,9 +35,13 @@ import com.jfinal.ext.interceptor.SessionInViewInterceptor;
 import com.jfinal.i18n.I18N;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.activerecord.Db;
+import com.jfinal.plugin.activerecord.DbKit;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 import com.jfinal.plugin.ehcache.EhCachePlugin;
 import com.jfinal.render.ViewType;
+
+import flexjson.JSONDeserializer;
 
 /**
  * @author zhengchangchun JFinal 一些参数的配置
@@ -79,14 +92,40 @@ public class JFanilConfig extends JFinalConfig {
 			plugins.add(arp);
 			// 添加QuartzPlugin 用于定时生成 sitemap.xml
 			plugins.add(new EhCachePlugin());
-			plugins.add(new QuartzPlugin());
-			JFinal.me().getServletContext().setAttribute("plugins", plugins);
+			//plugins.add(new QuartzPlugin());
+			JFinal.me().getServletContext().setAttribute("c3p0plugins", c3p0Plugin);
+			 
+			
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 
 	}
-
+	@Override
+	public void afterJFinalStart() {
+		super.afterJFinalStart();
+		//TODO 加载Zrlog 提供的插件
+		try {
+			List<String> zPlugins=Db.query("select content from plugin where level=999");
+			for (String pluginStr : zPlugins) {
+				Map<String,Object> map=new JSONDeserializer<Map<String,Object>>().deserialize(pluginStr);
+				Object tPlugin=Class.forName(map.get("classLoad").toString()).newInstance();
+				if(tPlugin instanceof IZrlogPlugin){
+					//PluginsUtil.addPlugin(map.get("key").toString(), (IZrlogPlugin)tPlugin);
+				}
+			}
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 	public void configRoute(Routes routes) {
 		// 添加浏览者能访问Control 路由
 		routes.add("/post", QueryLogControl.class);

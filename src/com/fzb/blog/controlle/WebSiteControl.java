@@ -1,16 +1,9 @@
 package com.fzb.blog.controlle;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.fzb.blog.model.LogNav;
 import com.fzb.blog.model.WebSite;
-import com.fzb.blog.util.plugin.QuartzPlugin;
-import com.fzb.common.util.SiteMapJob;
-import com.jfinal.config.Plugins;
-import com.jfinal.core.JFinal;
-import com.jfinal.plugin.IPlugin;
 
 public class WebSiteControl extends ManageControl
 {
@@ -26,10 +19,10 @@ public class WebSiteControl extends ManageControl
 	}
 	
 	public void siteMapPlugin(){
-		if(isNullOrEmptyStr(getPara("disable"))){
+		/*if(isNotNullOrNotEmptyStr(getPara("disable"))){
 			List<IPlugin> plugins=((Plugins)JFinal.me().getServletContext().getAttribute("plugins")).getPluginList();
 			for (IPlugin plugin : plugins) {
-				if(plugin.getClass().getSimpleName().equals(QuartzPlugin.class.getSimpleName())){
+				if(plugin.getClass().getSimpleName().equals(SiteMapPlugin.class.getSimpleName())){
 					plugin.stop();
 					plugins.remove(plugin);
 					break;
@@ -40,11 +33,11 @@ public class WebSiteControl extends ManageControl
 		}
 		else{
 			List<IPlugin> plugins=((Plugins)JFinal.me().getServletContext().getAttribute("plugins")).getPluginList();
-			IPlugin plugin=new QuartzPlugin();
+			IPlugin plugin=new SiteMapPlugin();
 			plugin.start();
 			plugins.add(plugin);
 			setAttr("message", "插件启用成功");
-		}
+		}*/
 		 
 	}
 

@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.fzb.blog.controlle.api.Constant;
-import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;
 import com.fzb.blog.model.Log;
 import com.fzb.blog.model.LogNav;
@@ -53,11 +52,6 @@ public class BaseControl extends Controller implements Constant {
 				Map<String, Object> typeMap = new TreeMap<String, Object>();
 				typeMap.put("typeName", type.getStr("typeName"));
 				typeMap.put("alias", type.getStr("alias"));
-
-				/*
-				 * out Integer count=1; if(count<=3){ typeMap.put("listId",
-				 * count++); } else{ count=1; typeMap.put("listId",1); }
-				 */
 				indexHotLog.put(
 						typeMap,
 						(List<Log>) Log.dao.getLogsBySort(1, 6,
@@ -105,7 +99,7 @@ public class BaseControl extends Controller implements Constant {
 		CacheKit.remove("/post/initData", "initData");
 	}
 	
-	public boolean isNullOrEmptyStr(Object... args){
+	public boolean isNotNullOrNotEmptyStr(Object... args){
 		for (Object arg : args) {
 			if(arg==null){
 				return false;
