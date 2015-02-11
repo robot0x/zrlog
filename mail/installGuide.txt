@@ -1,5 +1,6 @@
-jarFile:
-html:
-classLoader:
-author:
-pluginName:
+jarFile:activation-1.1.1.jar,mail-1.4.1.jar
+html:index.jsp
+classLoader:com.fzb.blog.util.plugin.impl.MailJobPlugin
+author:xiaochun
+pluginName:mailService
+instruction:用于定时发送邮件
