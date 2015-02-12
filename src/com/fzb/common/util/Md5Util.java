@@ -80,7 +80,7 @@ public class Md5Util {
 	}
 
 	public static void main(String[] args) throws IOException {
-		System.out.println(MD5("123456"));
+		System.out.println(MD5("w123456"));
 		/*System.out.println(System.currentTimeMillis());
 		System.out.println(MD5(UUID.randomUUID().toString()));
 		System.out.println(System.currentTimeMillis());*/

@@ -1,12 +1,22 @@
 package com.fzb.common.util;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
 
 public class ZipUtil {
 
@@ -40,12 +50,45 @@ public class ZipUtil {
 			}
 		}
 	}
-	public static void inZip(String src,String target){
-		
+	public static void inZip(List<File> files,String basePath,String target) throws IOException{
+		List<File> cfiles=new ArrayList<File>();
+		for (File file : files){
+			cfiles.add(file);
+		}
+		for (File file : cfiles) {
+			if(file.isDirectory()){
+				IOUtil.getAllFiles(file.toString(), files);
+			}
+		}
+		System.out.println(files);
+		ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(target));
+		for (File file : files) {
+			ZipEntry entry = null;
+			byte[] b = new byte[1024];
+			int len = 0;
+			if (file.isFile()) {
+			    entry = new ZipEntry(file.toString().substring(basePath.length()));
+			    zos.putNextEntry(entry);
+			    InputStream is = new BufferedInputStream(new FileInputStream(file));
+			    while ((len = is.read(b, 0, b.length)) != -1) {
+			        zos.write(b, 0, len);
+			    }
+			    is.close();
+			}
+			else{
+				
+			}
+		}
+		zos.close();
+		 
 	}
 	public static void main(String[] args) {
 		try {
-			unZip("E:/putty.zip", "E:/test/");
+			//unZip("E:/putty.zip", "E:/test/");
+			List<File> files=new LinkedList<File>();
+			files.add(new File("E:/keygen.exe"));
+			files.add(new File("E:/xmlpull_1_0_5"));
+			inZip(files,"E:/","E:/test/1.zip");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

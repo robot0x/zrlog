@@ -1,15 +1,10 @@
 package com.fzb.blog.controlle;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.zip.ZipInputStream;
-
-import org.apache.commons.io.IOUtils;
 
 import com.fzb.blog.model.Plugin;
 import com.fzb.blog.util.plugin.PluginsUtil;
@@ -42,6 +37,42 @@ public class PluginControl extends ManageControl {
 
 	}
 	
+	public void start(){
+		if(isNotNullOrNotEmptyStr(getPara("name"))){
+			String pName=getPara("name");
+			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
+			if(zPlugin!=null){
+				zPlugin.stop();
+				PluginsUtil.addPlugin(pName, zPlugin);
+			}
+			else{
+				setAttr("message", "不存在插件");
+			}
+		}
+	}
+	
+	public void stop(){
+		if(isNotNullOrNotEmptyStr(getPara("name"))){
+			String pName=getPara("name");
+			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
+			if(zPlugin!=null){
+				PluginsUtil.romvePlugin(pName);
+			}
+			else{
+				setAttr("message", "不存在插件");
+			}
+		}
+	}
+	
+	public void unstall(){
+		if(isNotNullOrNotEmptyStr(getPara("name"))){
+			String pName=getPara("name");
+			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
+			zPlugin.stop();
+			PluginsUtil.romvePlugin(pName);
+		}
+	}
+	
 	public void install(){
 		if(isNotNullOrNotEmptyStr(getPara("name"))){
 			String pName=getPara("name");
@@ -60,8 +91,8 @@ public class PluginControl extends ManageControl {
 					//TODO 解压 pluginName.zip
 					try {
 						String pluginPath=PathKit.getWebRootPath()+"/admin/plugin/"+pName+"";
-						String webLibPath=PathKit.getWebRootPath()+"/WEB-INF/lib/";
-						String classPath=PathKit.getWebRootPath()+"/WEB-INF/lib/classes";
+						String webLibPath=PathKit.getWebRootPath()+"/WEB-INF/";
+						String classPath=PathKit.getWebRootPath()+"/WEB-INF/";
 						ZipUtil.unZip(pluginPath+".zip", pluginPath+"/temp/");
 						
 						String installStr=IOUtil.getStringInputStream(new FileInputStream(pluginPath+"/temp/installGuide.txt"));
@@ -84,9 +115,23 @@ public class PluginControl extends ManageControl {
 						}*/
 						IOUtil.moveOrCopy(pluginPath+"/temp/html/", pluginPath, false);
 						IOUtil.moveOrCopy(pluginPath+"/temp/lib/", webLibPath, false);
-						IOUtil.moveOrCopy(pluginPath+"/temp/src/", classPath, false);
+						IOUtil.moveOrCopy(pluginPath+"/temp/classes/", classPath, false);
+						/*List<File> tfiles=new ArrayList<File>();
+						IOUtil.getAllFilesByProfix(pluginPath+"/temp/bin/com", ".class", tfiles);
+						List<String> names=new ArrayList<String>();
+						for (File file : tfiles) {
+							names.add(file.toString().substring((pluginPath+"/temp/bin").length()+1,file.toString().lastIndexOf(".")).replace("\\", "."));
+							//new ClassFileLoader().regClass(file.toString().substring((pluginPath+"/temp/bin").length()+1,file.toString().lastIndexOf(".")).replace("\\", "."));
+						}
+						System.out.println(names);
+						
+						//IOUtil.getAllFiles(classPath, files);
+						
+						File[] files=new File(classPath).listFiles();
+						for(File file:files){
+							System.out.println(file);
+						}*/
 						map=tmap;
-						System.out.println(tmap);
 						
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -98,10 +143,13 @@ public class PluginControl extends ManageControl {
 				
 				Object tPlugin;
 				try {
+					System.out.println(map.get("classLoader").toString());
+					Thread.currentThread().getContextClassLoader().loadClass(map.get("classLoader").toString());
 					tPlugin = Class.forName(map.get("classLoader").toString()).newInstance();
 					if(tPlugin instanceof IZrlogPlugin){
 						//PluginsUtil.addPlugin(map.get("key").toString(), (IZrlogPlugin)tPlugin);
 						((IZrlogPlugin)tPlugin).install(paramMap);
+						PluginsUtil.addPlugin(pName, ((IZrlogPlugin)tPlugin));
 					}
 					setAttr("message", "安装成功");
 				} catch (InstantiationException e) {
@@ -118,7 +166,7 @@ public class PluginControl extends ManageControl {
 				
 			}
 			else{
-				//do nothing
+				zPlugin.stop();
 			}
 		}
 	}

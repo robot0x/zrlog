@@ -91,8 +91,25 @@ public class IOUtil {
 				}
 			}
 		}
+		else{
+			moveOrCopyFile(f.toString(),tag+"/"+f.getName(),isMove);
+		}
 	}
-
+	
+	public static void writeStrToFile(String str,File file){
+		writeBytesToFile(str.getBytes(), file);
+	}
+	
+	public static void writeBytesToFile(byte[] bytes,File file){
+		try {
+			FileOutputStream out = new FileOutputStream(file);
+			out.write(bytes);
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void moveOrCopyFile(String src, String tag, boolean isMove) {
 		try {
 			long s = System.currentTimeMillis();
