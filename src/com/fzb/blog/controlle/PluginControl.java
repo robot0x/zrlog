@@ -1,12 +1,19 @@
 package com.fzb.blog.controlle;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fzb.blog.model.Plugin;
+import com.fzb.blog.util.LoadJar;
 import com.fzb.blog.util.plugin.PluginsUtil;
 import com.fzb.blog.util.plugin.api.IZrlogPlugin;
 import com.fzb.common.util.IOUtil;
@@ -75,7 +82,7 @@ public class PluginControl extends ManageControl {
 	
 	public void install(){
 		if(isNotNullOrNotEmptyStr(getPara("name"))){
-			String pName=getPara("name");
+			final String pName=getPara("name");
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
 			if(zPlugin==null){
 				//TODO 
@@ -93,6 +100,7 @@ public class PluginControl extends ManageControl {
 						String pluginPath=PathKit.getWebRootPath()+"/admin/plugin/"+pName+"";
 						String webLibPath=PathKit.getWebRootPath()+"/WEB-INF/";
 						String classPath=PathKit.getWebRootPath()+"/WEB-INF/";
+						new File(pluginPath+"/temp/").mkdirs();
 						ZipUtil.unZip(pluginPath+".zip", pluginPath+"/temp/");
 						
 						String installStr=IOUtil.getStringInputStream(new FileInputStream(pluginPath+"/temp/installGuide.txt"));
@@ -116,21 +124,20 @@ public class PluginControl extends ManageControl {
 						IOUtil.moveOrCopy(pluginPath+"/temp/html/", pluginPath, false);
 						IOUtil.moveOrCopy(pluginPath+"/temp/lib/", webLibPath, false);
 						IOUtil.moveOrCopy(pluginPath+"/temp/classes/", classPath, false);
-						/*List<File> tfiles=new ArrayList<File>();
-						IOUtil.getAllFilesByProfix(pluginPath+"/temp/bin/com", ".class", tfiles);
+						File[] jarFiles=new File(pluginPath+"/temp/lib/").listFiles();
+						//List<File> tfiles=new ArrayList<File>();
+						//FIXME 动态加载Jar
 						List<String> names=new ArrayList<String>();
-						for (File file : tfiles) {
-							names.add(file.toString().substring((pluginPath+"/temp/bin").length()+1,file.toString().lastIndexOf(".")).replace("\\", "."));
+						for (File file : jarFiles) {
+							//file.toURI();
+							File tf=new File(webLibPath+file.toString().substring((pluginPath+"/temp/").length()));
 							//new ClassFileLoader().regClass(file.toString().substring((pluginPath+"/temp/bin").length()+1,file.toString().lastIndexOf(".")).replace("\\", "."));
+							//System.out.println(webLibPath+file.toString().substring((pluginPath+"/temp/").length()));
+							System.out.println(tf.toURL());
+							new LoadJar(new URL[]{}).addJar(tf.toURL());
 						}
-						System.out.println(names);
 						
 						//IOUtil.getAllFiles(classPath, files);
-						
-						File[] files=new File(classPath).listFiles();
-						for(File file:files){
-							System.out.println(file);
-						}*/
 						map=tmap;
 						
 					} catch (IOException e) {
@@ -141,7 +148,7 @@ public class PluginControl extends ManageControl {
 					map=new JSONDeserializer<Map<String,Object>>().deserialize(pluginContent);
 				}
 				
-				Object tPlugin;
+				final Object tPlugin;
 				try {
 					System.out.println(map.get("classLoader").toString());
 					Thread.currentThread().getContextClassLoader().loadClass(map.get("classLoader").toString());
@@ -149,7 +156,11 @@ public class PluginControl extends ManageControl {
 					if(tPlugin instanceof IZrlogPlugin){
 						//PluginsUtil.addPlugin(map.get("key").toString(), (IZrlogPlugin)tPlugin);
 						((IZrlogPlugin)tPlugin).install(paramMap);
-						PluginsUtil.addPlugin(pName, ((IZrlogPlugin)tPlugin));
+						new Thread(){
+							public void run() {
+								PluginsUtil.addPlugin(pName, ((IZrlogPlugin)tPlugin));
+							};
+						}.start();
 					}
 					setAttr("message", "安装成功");
 				} catch (InstantiationException e) {
@@ -166,7 +177,7 @@ public class PluginControl extends ManageControl {
 				
 			}
 			else{
-				zPlugin.stop();
+				setAttr("message", "插件已经在运行了");
 			}
 		}
 	}
