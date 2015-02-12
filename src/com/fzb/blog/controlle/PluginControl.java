@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -12,12 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.catalina.loader.WebappClassLoader;
+
 import com.fzb.blog.model.Plugin;
 import com.fzb.blog.util.LoadJar;
+import com.fzb.blog.util.LoadJarUtil;
 import com.fzb.blog.util.plugin.PluginsUtil;
 import com.fzb.blog.util.plugin.api.IZrlogPlugin;
 import com.fzb.common.util.IOUtil;
 import com.fzb.common.util.ZipUtil;
+import com.jfinal.core.JFinal;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.Db;
 
@@ -63,7 +68,9 @@ public class PluginControl extends ManageControl {
 			String pName=getPara("name");
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
 			if(zPlugin!=null){
+				zPlugin.stop();
 				PluginsUtil.romvePlugin(pName);
+				setAttr("message", "停用插件");
 			}
 			else{
 				setAttr("message", "不存在插件");
@@ -95,16 +102,13 @@ public class PluginControl extends ManageControl {
 				String pluginContent=Db.queryFirst("select content from plugin where pluginName=?",pName);
 				Map<String,Object> map=null;
 				if(pluginContent==null){
-					//TODO 解压 pluginName.zip
 					try {
 						String pluginPath=PathKit.getWebRootPath()+"/admin/plugin/"+pName+"";
 						String webLibPath=PathKit.getWebRootPath()+"/WEB-INF/";
 						String classPath=PathKit.getWebRootPath()+"/WEB-INF/";
-						new File(pluginPath+"/temp/").mkdirs();
+						//new File(pluginPath+"/temp/").mkdirs();
 						ZipUtil.unZip(pluginPath+".zip", pluginPath+"/temp/");
-						
 						String installStr=IOUtil.getStringInputStream(new FileInputStream(pluginPath+"/temp/installGuide.txt"));
-						//System.out.println(installStr);
 						String installArgs[]=installStr.split("\r\n");
 						Map<String,Object> tmap=new HashMap<String, Object>();
 						for(String arg:installArgs){
@@ -125,19 +129,12 @@ public class PluginControl extends ManageControl {
 						IOUtil.moveOrCopy(pluginPath+"/temp/lib/", webLibPath, false);
 						IOUtil.moveOrCopy(pluginPath+"/temp/classes/", classPath, false);
 						File[] jarFiles=new File(pluginPath+"/temp/lib/").listFiles();
-						//List<File> tfiles=new ArrayList<File>();
-						//FIXME 动态加载Jar
-						List<String> names=new ArrayList<String>();
-						for (File file : jarFiles) {
-							//file.toURI();
-							File tf=new File(webLibPath+file.toString().substring((pluginPath+"/temp/").length()));
-							//new ClassFileLoader().regClass(file.toString().substring((pluginPath+"/temp/bin").length()+1,file.toString().lastIndexOf(".")).replace("\\", "."));
-							//System.out.println(webLibPath+file.toString().substring((pluginPath+"/temp/").length()));
-							System.out.println(tf.toURL());
-							new LoadJar(new URL[]{}).addJar(tf.toURL());
+						try {
+							//FIXME 存在加载默认配置文件找不到的情况咋个办？？？
+							LoadJarUtil.loadJar(jarFiles);
+						} catch (URISyntaxException e) {
+							e.printStackTrace();
 						}
-						
-						//IOUtil.getAllFiles(classPath, files);
 						map=tmap;
 						
 					} catch (IOException e) {
@@ -156,11 +153,7 @@ public class PluginControl extends ManageControl {
 					if(tPlugin instanceof IZrlogPlugin){
 						//PluginsUtil.addPlugin(map.get("key").toString(), (IZrlogPlugin)tPlugin);
 						((IZrlogPlugin)tPlugin).install(paramMap);
-						new Thread(){
-							public void run() {
-								PluginsUtil.addPlugin(pName, ((IZrlogPlugin)tPlugin));
-							};
-						}.start();
+						PluginsUtil.addPlugin(pName, ((IZrlogPlugin)tPlugin));
 					}
 					setAttr("message", "安装成功");
 				} catch (InstantiationException e) {

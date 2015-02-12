@@ -35,6 +35,9 @@ public class ZipUtil {
 				}
 				else{
 					byte[] b=IOUtil.getByteByInputStream(zip.getInputStream(in));
+					if(!new File(file.getParent()).exists()){
+						new File(file.getParent()).mkdirs();
+					}
 					FileOutputStream fout=new FileOutputStream(file);
 					fout.write(b);
 					fout.close();
