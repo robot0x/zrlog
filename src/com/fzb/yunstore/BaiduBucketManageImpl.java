@@ -27,11 +27,9 @@ public class BaiduBucketManageImpl implements FileManageAPI {
 
 	private static final Logger log = Logger.getLogger(BaiduBucketManageImpl.class);
 	
-	private String yyName;
-	private String bucketName;
-	public BaiduBucketManageImpl(String bucketName,String yyName){
-		this.bucketName=bucketName;
-		this.yyName=yyName;
+	private BucketVO bucket;
+	public BaiduBucketManageImpl(BucketVO bucket){
+		this.bucket=bucket;
 	}
 	
 	@Override
@@ -49,8 +47,8 @@ public class BaiduBucketManageImpl implements FileManageAPI {
 	@Override
 	public Map<String, Object> create(File file) {
 		try{
-			BCSCredentials credentials = new BCSCredentials(BucketUtil.getAccessKeyByBN(yyName, "baidu"), BucketUtil.getAccessKeyByBN(yyName, "baidu"));
-			BaiduBCS baiduBCS = new BaiduBCS(credentials, BucketUtil.getHostByBN(yyName, "baidu"));
+			BCSCredentials credentials = new BCSCredentials(bucket.getAccessKey(), bucket.getSecretKey());
+			BaiduBCS baiduBCS = new BaiduBCS(credentials, bucket.getHost());
 			baiduBCS.setDefaultEncoding("UTF-8"); 
 			InputStream fileContent = new FileInputStream(file);
 			ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -65,9 +63,9 @@ public class BaiduBucketManageImpl implements FileManageAPI {
 			} catch (MagicException e) {
 				e.printStackTrace();
 			}
-			PutObjectRequest request = new PutObjectRequest(bucketName, "/abl/temp.jpg", fileContent, objectMetadata);
+			PutObjectRequest request = new PutObjectRequest(bucket.getBucketName(), "/abl/temp.jpg", fileContent, objectMetadata);
 			ObjectMetadata result = baiduBCS.putObject(request).getResult();
-			GenerateUrlRequest generateUrlRequest = new GenerateUrlRequest(HttpMethodName.GET, bucketName,"/abl/temp.jpg");
+			GenerateUrlRequest generateUrlRequest = new GenerateUrlRequest(HttpMethodName.GET, bucket.getBucketName(),"/abl/temp.jpg");
 			generateUrlRequest.setBcsSignCondition(new BCSSignCondition());
 			log.info(result);
 			System.out.println(baiduBCS.generateUrl(generateUrlRequest));
