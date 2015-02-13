@@ -25,11 +25,7 @@ public class QiniuBucketManageImpl implements FileManageAPI {
 	
 	private Map<String,Object> responseData=new HashMap<String,Object>();
 	
-	private String bucketName;
 	private BucketVO bucket;
-	public QiniuBucketManageImpl(String bucketName){
-		this.bucketName=bucketName;
-	}
 	
 	public QiniuBucketManageImpl(BucketVO bucket){
 		this.bucket=bucket;
@@ -37,9 +33,9 @@ public class QiniuBucketManageImpl implements FileManageAPI {
 	
 	@Override
 	public Map<String, Object> delFile(String file) {
-        Mac mac = new Mac(BucketUtil.getAccessKeyByBN(bucketName, "qiniu"),BucketUtil.getSecretKeyByBN(bucketName, "qiniu"));
+        Mac mac = new Mac(bucket.getAccessKey(),bucket.getSecretKey());
 		RSClient client = new RSClient(mac);
-		CallRet cr=client.delete(bucketName, file);
+		CallRet cr=client.delete(bucket.getBucketName(), file);
 		responseData.put("statusCode", cr.statusCode);
 		responseData.put("resp", cr.getResponse());
 		return responseData;
@@ -157,14 +153,8 @@ public class QiniuBucketManageImpl implements FileManageAPI {
 	}
 	
 	public static void main(String[] args) {
-		QiniuBucketManageImpl qin=new QiniuBucketManageImpl("fz-blog");
-		System.out.println(qin.create(new File("C:\\Users\\xiaochun\\Pictures\\S41125-170028.jpg")));
-		System.out.println(qin.delFile("QQ截图20141128105713.png"));
-		System.out.println(qin.fopImageView(""));
 		
-		FileManageAPI bucket=new BaiduBucketManageImpl("a94fzb","94fzb");
-		bucket.create(new File("C:\\Users\\xiaochun\\Pictures\\S41125-170028.jpg"));
-	}
+ 	}
 
 	
 
