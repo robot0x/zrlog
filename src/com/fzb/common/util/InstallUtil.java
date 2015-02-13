@@ -12,9 +12,23 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.fzb.blog.model.Comment;
+import com.fzb.blog.model.Link;
+import com.fzb.blog.model.Log;
+import com.fzb.blog.model.LogNav;
+import com.fzb.blog.model.Plugin;
+import com.fzb.blog.model.Tag;
+import com.fzb.blog.model.Type;
+import com.fzb.blog.model.User;
+import com.fzb.blog.model.WebSite;
+import com.jfinal.config.Plugins;
+import com.jfinal.core.JFinal;
+import com.jfinal.plugin.IPlugin;
+import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 
 public class InstallUtil {
@@ -176,6 +190,24 @@ public class InstallUtil {
 			ps=connect.prepareStatement(inserTag);
 			ps.executeUpdate();
 			//TODO 重新注册C3P0Plugin 
+			System.out.println("SSSSSSSSSSSS");
+			Plugins plugins=(Plugins)JFinal.me().getServletContext().getAttribute("plugins");
+			C3p0Plugin c3p0Plugin = new C3p0Plugin(configMsg.get("jdbcUrl"),
+					configMsg.get("user"), configMsg.get("password"));
+			plugins.add(c3p0Plugin);
+			
+			ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
+			arp.addMapping("user", "userId", User.class);
+			arp.addMapping("log", "logId", Log.class);
+			arp.addMapping("type", "typeId", Type.class);
+			arp.addMapping("link", "linkId", Link.class);
+			arp.addMapping("comment", "commentId", Comment.class);
+			arp.addMapping("lognav", "navId", LogNav.class);
+			arp.addMapping("website", "siteId", WebSite.class);
+			arp.addMapping("plugin", "pluginId", Plugin.class);
+			arp.addMapping("tag", "tagId", Tag.class);
+			// 添加表与实体的映射关系
+			plugins.add(arp);
 			return true;
 		} catch (FileNotFoundException e) {
 			lock.delete();
@@ -183,7 +215,7 @@ public class InstallUtil {
 		} catch (IOException e) {
 			lock.delete();
 			e.printStackTrace();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			lock.delete();
 			e.printStackTrace();
 		}

@@ -68,15 +68,18 @@ public class JFanilConfig extends JFinalConfig {
 	}
 
 	public void configPlugin(Plugins plugins) {
-		// 启动时候进行数据库链接,
-		loadPropertyFile("db.properties");
-		C3p0Plugin c3p0Plugin = new C3p0Plugin(getProperty("jdbcUrl"),
-				getProperty("user"), getProperty("password"));
 		try {
+			JFinal.me().getServletContext().setAttribute("plugins", plugins);
 			// 如果不存在 install.lock 文件的情况下不初始化数据
-			if (new InstallUtil(PathKit.getWebRootPath() + "/WEB-INF")
+			if (!new InstallUtil(PathKit.getWebRootPath() + "/WEB-INF")
 					.checkInstall()) {
+				System.out.println("GGGGGGGGG");
+				return;
 			}
+			// 启动时候进行数据库链接,
+			loadPropertyFile("db.properties");
+			C3p0Plugin c3p0Plugin = new C3p0Plugin(getProperty("jdbcUrl"),
+					getProperty("user"), getProperty("password"));
 			plugins.add(c3p0Plugin);
 			ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
 			arp.addMapping("user", "userId", User.class);
@@ -90,11 +93,7 @@ public class JFanilConfig extends JFinalConfig {
 			arp.addMapping("tag", "tagId", Tag.class);
 			// 添加表与实体的映射关系
 			plugins.add(arp);
-			// 添加QuartzPlugin 用于定时生成 sitemap.xml
 			plugins.add(new EhCachePlugin());
-			//plugins.add(new QuartzPlugin());
-			JFinal.me().getServletContext().setAttribute("c3p0plugins", c3p0Plugin);
-			 
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -114,14 +113,7 @@ public class JFanilConfig extends JFinalConfig {
 					//PluginsUtil.addPlugin(map.get("key").toString(), (IZrlogPlugin)tPlugin);
 				}
 			}
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
