@@ -23,7 +23,7 @@ public class PluginControl extends ManageControl {
 	public void delete() {
 		Plugin.dao.deleteById(getPara(0));
 	}
-
+	
 	public void queryAll() {
 
 	}
@@ -94,7 +94,7 @@ public class PluginControl extends ManageControl {
 				Map<String,Object> map=null;
 				if(pluginContent==null){
 					try {
-						String pluginPath=PathKit.getWebRootPath()+"/admin/plugin/"+pName+"";
+						String pluginPath=PathKit.getWebRootPath()+"/admin/plugins/"+pName+"";
 						String webLibPath=PathKit.getWebRootPath()+"/WEB-INF/";
 						String classPath=PathKit.getWebRootPath()+"/WEB-INF/";
 						//new File(pluginPath+"/temp/").mkdirs();

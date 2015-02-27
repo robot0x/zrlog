@@ -25,21 +25,15 @@ public abstract class ManageControl extends BaseControl {
 
 		}
 		renderJson("OK");
-		
-		//清空数据缓存
+
+		// 清空数据缓存
 		BaseControl.refreshCache();
 	}
-
-	/*
-	 * public void index() { String
-	 * cont=getRequest().getRequestURI().substring(getRequest
-	 * ().getRequestURI().indexOf("/")); render("/admin/"+cont+".jsp"); }
-	 */
 	public void setData(Map<String, Object> data) {
 		this.data = data;
 	}
-	
-	public void put(String key,Object value){
+
+	public void put(String key, Object value) {
 		data.put(key, value);
 	}
 
