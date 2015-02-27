@@ -12,6 +12,7 @@ import com.fzb.blog.model.Plugin;
 import com.fzb.blog.util.LoadJarUtil;
 import com.fzb.blog.util.plugin.PluginsUtil;
 import com.fzb.blog.util.plugin.api.IZrlogPlugin;
+import com.fzb.common.util.HttpUtil;
 import com.fzb.common.util.IOUtil;
 import com.fzb.common.util.ZipUtil;
 import com.jfinal.kit.PathKit;
@@ -164,5 +165,9 @@ public class PluginControl extends ManageControl {
 				setAttr("message", "插件已经在运行了");
 			}
 		}
+	}
+	
+	public void download(){
+		HttpUtil.
 	}
 }

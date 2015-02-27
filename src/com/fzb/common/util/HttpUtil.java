@@ -1,6 +1,7 @@
 package com.fzb.common.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -14,6 +15,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -35,30 +37,7 @@ public class HttpUtil extends HttpServlet {
 
 	 
 	
-	public static void main(String[] args) throws IOException{
-		int  i=0;
-		while(i<1){
-		new Thread(){
-			@Override
-			public void run() {
-				String urlPath="http://localhost:8080/zrlog/api/duoshuo";
-				 Map<String,Object> params=new HashMap<String,Object>();
-				 params.put("action", "rose");
-				 params.put("_method", "login");
-				 params.put("password", "123456");
-				 params.put("registrationID", "777");  
-				 //params.put("short_name", "xchun.duoshuo.com");
-				 try {
-					System.out.println(getGResponseText(urlPath, params));
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}.start();;
-		i+=1;
-	}
-	}
+
 	/**
 	 * 利用HTTPClient 发送Post请求
 	 * @param urlPath 服务器中servlet 的urlPath
@@ -82,6 +61,9 @@ public class HttpUtil extends HttpServlet {
 		String html=new String(sb.toString().getBytes(),"utf-8");
 		log.info("used Time " +html +" " +(System.currentTimeMillis()-start));
 		return html;
+	}
+	public static String getGResponseText(String urlPath) throws IOException{
+		return getResponseText(urlPath, null);
 	}
 	
 	public static String getGResponseText(String urlPath,Map<String,Object> params) throws IOException{
@@ -154,4 +136,29 @@ public class HttpUtil extends HttpServlet {
         } 
         return httpost;
     }
+	public static ResponseData getResponse(String urlPath,ResponseData respData) throws ClientProtocolException, IOException{
+		long start=System.currentTimeMillis();
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		
+		System.out.println(urlPath);
+		HttpGet httpget = new HttpGet(urlPath);
+		CloseableHttpResponse response = httpclient.execute(httpget);
+		BufferedReader reader=new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+		System.out.println(respData.getClass().getTypeParameters()[0].getGenericDeclaration());
+		return respData;
+		/*BufferedReader reader=new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+		String temp=null;
+		StringBuffer sb=new StringBuffer();
+		while((temp=reader.readLine())!=null){
+			sb.append(temp);
+		}
+		reader.close();
+		String html=new String(sb.toString().getBytes(),"utf-8");
+		log.info("used Time " +html +" " +(System.currentTimeMillis()-start));
+		return respData;*/
+	}
+	
+	public static void main(String[] args) throws IOException{
+		getResponse("http://www.baidu.com", new ResponseData<File>());
+	}
 }

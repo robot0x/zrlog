@@ -22,7 +22,6 @@ public class UserControl extends ManageControl {
 				render("/admin/" + getPara(0) + ".jsp");
 			}
 		} else {
-			System.out.println("/admin/" + getPara(0) + ".jsp");
 			render("/admin/login.jsp");
 		}
 
