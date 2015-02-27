@@ -6,13 +6,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.servlet.http.HttpServlet;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -31,7 +28,7 @@ import org.apache.log4j.Logger;
  * @author xiaochun
  *
  */
-public class HttpUtil extends HttpServlet {
+public class HttpUtil{
 
 	private static Logger log=Logger.getLogger(HttpUtil.class);
 
@@ -136,7 +133,7 @@ public class HttpUtil extends HttpServlet {
         } 
         return httpost;
     }
-	public static ResponseData getResponse(String urlPath,ResponseData respData) throws ClientProtocolException, IOException{
+	public static ResponseData<?> getResponse(String urlPath,ResponseData<?> i) throws ClientProtocolException, IOException, InstantiationException{
 		long start=System.currentTimeMillis();
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		
@@ -144,21 +141,40 @@ public class HttpUtil extends HttpServlet {
 		HttpGet httpget = new HttpGet(urlPath);
 		CloseableHttpResponse response = httpclient.execute(httpget);
 		BufferedReader reader=new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-		System.out.println(respData.getClass().getTypeParameters()[0].getGenericDeclaration());
-		return respData;
-		/*BufferedReader reader=new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-		String temp=null;
-		StringBuffer sb=new StringBuffer();
-		while((temp=reader.readLine())!=null){
-			sb.append(temp);
+		Class<?> clazz=i.getClazz();
+		if(clazz==File.class){
+			System.out.println("GGGG");
 		}
-		reader.close();
-		String html=new String(sb.toString().getBytes(),"utf-8");
-		log.info("used Time " +html +" " +(System.currentTimeMillis()-start));
+		else if(clazz==String.class){
+			String temp=null;
+			StringBuffer sb=new StringBuffer();
+			while((temp=reader.readLine())!=null){
+				sb.append(temp);
+			}
+			reader.close();
+			String html=new String(sb.toString().getBytes(),"utf-8");
+			i.setT(html);
+		}
+		return i;
+		/*BufferedReader reader=new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+		
+		
 		return respData;*/
 	}
 	
 	public static void main(String[] args) throws IOException{
-		getResponse("http://www.baidu.com", new ResponseData<File>());
+		/*ResponseData<File> i=new ResponseData<File>(){};
+		File f=i.getT();*/
+		
+		ResponseData<String> i=new ResponseData<String>(){};
+		
+		try {
+			getResponse("http://www.baidu.com", i);
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String f=i.getT();
+		System.out.println(f);
 	}
 }
