@@ -105,13 +105,13 @@ public class JFanilConfig extends JFinalConfig {
 		super.afterJFinalStart();
 		//TODO 加载Zrlog 提供的插件
 		try {
-			List<String> zPlugins=Db.query("select content from plugin where level=?",-1);
-			for (String pluginStr : zPlugins) {
-				Map<String,Object> map=new JSONDeserializer<Map<String,Object>>().deserialize(pluginStr);
+			List<Object[]> zPlugins=Db.query("select content,pluginName from plugin where level=?",-1);
+			for (Object[] pluginStr : zPlugins) {
+				Map<String,Object> map=new JSONDeserializer<Map<String,Object>>().deserialize(pluginStr[0].toString());
 				Object tPlugin=Class.forName(map.get("classLoader").toString()).newInstance();
 				if(tPlugin instanceof IZrlogPlugin){
 					if(Integer.parseInt(map.get("status").toString())==2){
-						PluginsUtil.addPlugin(map.get("pluginName").toString(), (IZrlogPlugin)tPlugin);
+						PluginsUtil.addPlugin(pluginStr[1].toString(), (IZrlogPlugin)tPlugin);
 					}
 				}
 			}
