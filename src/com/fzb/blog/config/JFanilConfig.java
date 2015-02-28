@@ -54,7 +54,7 @@ public class JFanilConfig extends JFinalConfig {
 		con.setI18n("i18n");
 		I18N.init("i18n", null, null);
 		con.setError404View("/error/404.html");
-		con.setError500View("/error/404.html");
+		con.setError500View("/error/500.html");
 		con.setUploadedFileSaveDirectory(PathKit.getWebRootPath() + "/attached");
 	}
 
@@ -105,12 +105,14 @@ public class JFanilConfig extends JFinalConfig {
 		super.afterJFinalStart();
 		//TODO 加载Zrlog 提供的插件
 		try {
-			List<String> zPlugins=Db.query("select content from plugin where level=999");
+			List<String> zPlugins=Db.query("select content from plugin where level=?",-1);
 			for (String pluginStr : zPlugins) {
 				Map<String,Object> map=new JSONDeserializer<Map<String,Object>>().deserialize(pluginStr);
-				Object tPlugin=Class.forName(map.get("classLoad").toString()).newInstance();
+				Object tPlugin=Class.forName(map.get("classLoader").toString()).newInstance();
 				if(tPlugin instanceof IZrlogPlugin){
-					//PluginsUtil.addPlugin(map.get("key").toString(), (IZrlogPlugin)tPlugin);
+					if(Integer.parseInt(map.get("status").toString())==2){
+						PluginsUtil.addPlugin(map.get("pluginName").toString(), (IZrlogPlugin)tPlugin);
+					}
 				}
 			}
 		} catch (Exception e) {

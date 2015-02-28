@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.catalina.connector.Request;
-import org.apache.http.client.ClientProtocolException;
-
 import com.fzb.blog.model.Plugin;
 import com.fzb.blog.util.LoadJarUtil;
 import com.fzb.blog.util.plugin.PluginsUtil;
@@ -22,9 +19,9 @@ import com.fzb.common.util.IOUtil;
 import com.fzb.common.util.ResponseData;
 import com.fzb.common.util.ZipUtil;
 import com.jfinal.kit.PathKit;
-import com.jfinal.plugin.activerecord.Db;
 
 import flexjson.JSONDeserializer;
+import flexjson.JSONSerializer;
 
 public class PluginControl extends ManageControl {
 	public void delete() {
@@ -64,14 +61,12 @@ public class PluginControl extends ManageControl {
 
 	@Override
 	public void add() {
-		// Plugin.dao.set("typeName", getPara("typeName")).set("alias",
-		// getPara("alias")).set("remark", getPara("remark"))
+		
 	}
 
 	@Override
 	public void update() {
-		// TODO Auto-generated method stub
-
+		
 	}
 	
 	public void start(){
@@ -80,10 +75,16 @@ public class PluginControl extends ManageControl {
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
 			if(zPlugin!=null){
 				zPlugin.stop();
-				PluginsUtil.addPlugin(pName, zPlugin);
 			}
-			else{
-				setAttr("message", "不存在插件");
+			try{
+				zPlugin = (IZrlogPlugin) Class.forName((String) getKey(pName, "classLoader")).newInstance();
+				PluginsUtil.addPlugin(pName, zPlugin);
+				setAttr("message", "插件开始运行了");
+				new Plugin().updatePluginStatus(pName, 2);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+				setAttr("message", "运行插件遇到了一些问题");
 			}
 		}
 	}
@@ -93,10 +94,10 @@ public class PluginControl extends ManageControl {
 			String pName=getPara("name");
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
 			if(zPlugin!=null){
-				zPlugin.stop();
+				//FIXME 这里存在静态Map无法remove Key的情况
 				PluginsUtil.romvePlugin(pName);
-				System.out.println(PluginsUtil.getPlugin(pName));
 				setAttr("message", "停用插件");
+				new Plugin().updatePluginStatus(pName, 3);
 			}
 			else{
 				setAttr("message", "不存在插件,或者插件没有运行");
@@ -108,16 +109,22 @@ public class PluginControl extends ManageControl {
 		if(isNotNullOrNotEmptyStr(getPara("name"))){
 			String pName=getPara("name");
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
-			zPlugin.stop();
-			PluginsUtil.romvePlugin(pName);
-			setAttr("message", "卸载插件");
+			if(zPlugin!=null){
+				PluginsUtil.romvePlugin(pName);
+				setAttr("message", "卸载插件");
+				zPlugin.unstall();
+				//TODO 删除解压的文件和数据库记录
+				//new Plugin().updatePluginStatus(pName, 2);
+			}
+			else{
+				setAttr("message", "不存在插件,或者插件没有运行");
+			}
 		}
 	}
 	
 	public void install(){
 		if(isNotNullOrNotEmptyStr(getPara("name"))){
-			final String pName=getPara("name");
-			System.out.println(PluginsUtil.getPluginsMap());
+			String pName=getPara("name");
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
 			if(zPlugin==null){
 				//TODO 
@@ -127,66 +134,15 @@ public class PluginControl extends ManageControl {
 					paramMap.put(param.getKey(), param.getValue()[0]);
 				}
 				paramMap.remove("name");
-				String pluginContent=Db.queryFirst("select content from plugin where pluginName=?",pName);
-				Map<String,Object> map=null;
-				if(pluginContent==null){
-					try {
-						String pluginPath=PathKit.getWebRootPath()+"/admin/plugins/"+pName+"";
-						String webLibPath=PathKit.getWebRootPath()+"/WEB-INF/";
-						String classPath=PathKit.getWebRootPath()+"/WEB-INF/";
-						//new File(pluginPath+"/temp/").mkdirs();
-						ZipUtil.unZip(pluginPath+".zip", pluginPath+"/temp/");
-						String installStr=IOUtil.getStringInputStream(new FileInputStream(pluginPath+"/temp/installGuide.txt"));
-						String installArgs[]=installStr.split("\r\n");
-						Map<String,Object> tmap=new HashMap<String, Object>();
-						for(String arg:installArgs){
-							tmap.put(arg.split(":")[0], arg.substring(arg.split(":")[0].length()+1));
-						}
-						//copy File
-						/*String htmlFiles[]=tmap.get("html").toString().split(",");
-						for (String string : htmlFiles) {
-							IOUtil.moveOrCopyFile(pluginPath+"/temp/html/"+string, pluginPath+string, false);
-							System.out.println(pluginPath+"/temp/html/"+string);
-						}
-						String libFiles[]=tmap.get("jarFile").toString().split(",");
-						for (String string : htmlFiles) {
-							IOUtil.moveOrCopyFile(pluginPath+"/temp/lib/"+string, webLibPath+string, false);
-							System.out.println(pluginPath+"/temp/lib/"+string);
-						}*/
-						IOUtil.moveOrCopy(pluginPath+"/temp/html/", pluginPath, false);
-						IOUtil.moveOrCopy(pluginPath+"/temp/lib/", webLibPath, false);
-						IOUtil.moveOrCopy(pluginPath+"/temp/classes/", classPath, false);
-						File[] jarFiles=new File(pluginPath+"/temp/lib/").listFiles();
-						try {
-							//FIXME 存在加载默认配置文件找不到的情况咋个办？？？
-							LoadJarUtil.loadJar(jarFiles);
-						} catch (URISyntaxException e) {
-							e.printStackTrace();
-						}
-						map=tmap;
-						
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-				else{
-					map=new JSONDeserializer<Map<String,Object>>().deserialize(pluginContent);
-				}
-				
-				final Object tPlugin;
+				Object tPlugin;
 				try {
-					System.out.println(map.get("classLoader").toString());
+					Map<String,Object> map=getPluginMsgByZipFileName(pName);;
 					Thread.currentThread().getContextClassLoader().loadClass(map.get("classLoader").toString());
 					tPlugin = Class.forName(map.get("classLoader").toString()).newInstance();
 					if(tPlugin instanceof IZrlogPlugin){
-						//PluginsUtil.addPlugin(map.get("key").toString(), (IZrlogPlugin)tPlugin);
-						//((IZrlogPlugin)tPlugin).install(paramMap);
-						//PluginsUtil.addPlugin(pName, ((IZrlogPlugin)tPlugin));
-						getRequest().getRequestDispatcher("admin/plugins/"+pName+"/html/index.jsp").include(getRequest(), getResponse());
-						/*getRequest().getRequestDispatcher("admin/plugins/"+pName+"/html/index.jsp").include(getRequest(), getResponse());
-						getRequest().getRequestDispatcher("admin/include/footer.jsp").include(getRequest(), getResponse());
-				*/	}
-					//setAttr("message", "安装成功");
+						((IZrlogPlugin)tPlugin).install(paramMap);
+					}
+					setAttr("message", "安装成功,<a href='plugin/start?name="+pName+"'>点击开始运行</a>");
 				} catch (InstantiationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -205,21 +161,57 @@ public class PluginControl extends ManageControl {
 	}
 	
 	public void download(){
-		ResponseData<File> data=new ResponseData<File>() {};
 		try {
+			ResponseData<File> data=new ResponseData<File>() {};
 			HttpUtil.getResponse(getPara("host")+"/plugin/download?id="+getParaToInt("id"), data, PathKit.getWebRootPath()+"/admin/plugins/");
 			String folerName=data.getT().getName().toString().substring(0,data.getT().getName().toString().indexOf("."));
-			ZipUtil.unZip(data.getT().toString(), PathKit.getWebRootPath()+ "/include/templates/"+folerName+"/");
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block	
+			Map<String,Object> map=getPluginMsgByZipFileName(folerName);
+			getRequest().getRequestDispatcher("/admin/plugins/"+folerName+"/html/"+map.get("page")).forward(getRequest(), getResponse());
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		renderHtml("<div class='page-content'><div class='alert alert-block alert-success'><p>下载插件成功</p><p><a href='javascript:history.go(-1);'><button class='btn btn-sm btn-success'>返回</button></a></p></div></div>");
+	}
+	
+	private Object getKey(String pluginName,String key){
+		Plugin plugin=Plugin.dao.findFirst("select * from plugin where pluginName=?",pluginName);
+		return new JSONDeserializer<Map<String,Object>>().deserialize(plugin.getStr("content")).get(key);
+	}
+
+	
+	private Map<String,Object> getPluginMsgByZipFileName(String pluginName) throws IOException{
+		String pluginPath=PathKit.getWebRootPath()+"/admin/plugins/"+pluginName+"";
+		String webLibPath=PathKit.getWebRootPath()+"/WEB-INF/";
+		String classPath=PathKit.getWebRootPath()+"/WEB-INF/";
+		ZipUtil.unZip(pluginPath+".zip", pluginPath+"/temp/");
+		String installStr;
+		//FIXME 中文乱码问题
+		installStr = IOUtil.getStringInputStream(new FileInputStream(pluginPath+"/temp/installGuide.txt"));
+		String installArgs[]=installStr.split("\r\n");
+		Map<String,Object> tmap=new HashMap<String, Object>();
+		for(String arg:installArgs){
+			tmap.put(arg.split(":")[0], arg.substring(arg.split(":")[0].length()+1));
+		}
+		IOUtil.moveOrCopy(pluginPath+"/temp/html/", pluginPath, false);
+		IOUtil.moveOrCopy(pluginPath+"/temp/lib/", webLibPath, false);
+		IOUtil.moveOrCopy(pluginPath+"/temp/classes/", classPath, false);
+		File[] jarFiles=new File(pluginPath+"/temp/lib/").listFiles();
+		try {
+			LoadJarUtil.loadJar(jarFiles);
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		Map<String,Object> map=new HashMap<String,Object>();
+		map.put("status", 0);
+		map.put("classLoader", tmap.get("classLoader"));
+		map.put("author", tmap.get("author"));
+		map.put("desc", tmap.get("instruction"));
+		map.put("page", tmap.get("html"));
+		map.put("version", tmap.get("version"));
+		Plugin plugin=new Plugin().set("pluginName", pluginName).set("content", new JSONSerializer().serialize(map)).set("level", -1);
+		Plugin id=Plugin.dao.findFirst("select pluginId from plugin where pluginName=?",pluginName);
+		if(id==null){
+			plugin.save();
+		}
+		return map;
 	}
 }
