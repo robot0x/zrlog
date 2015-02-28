@@ -73,6 +73,7 @@ public class IOUtil {
 
 	public static void moveOrCopy(String filer,String tag,boolean isMove)
 	{
+		System.out.println(filer);
 		File f=new File(filer);
 		if(f.isDirectory())
 		{
@@ -123,8 +124,6 @@ public class IOUtil {
 			while ((length = in.read(b)) != -1) {
 				out.write(b, 0, length);
 			}
-			in.read(b);
-			out.write(b);
 			// 一定要记得关闭流额。 不然其他程序那个文件无法进行操作
 			in.close();
 			out.close();
