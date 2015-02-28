@@ -36,7 +36,7 @@ public class APIControl extends QueryLogControl {
 		// params.put("short_name", "xchun.duoshuo.com");
 		try {
 			Map<String, Object> resp = new JSONDeserializer<Map<String, Object>>()
-					.deserialize(HttpUtil.getGResponseText(urlPath, params));
+					.deserialize(HttpUtil.getResponse(urlPath, params));
 			if ((Integer) resp.get("code") == 0) {
 				List<Map<String, Object>> comments = (List<Map<String, Object>>) resp
 						.get("response");

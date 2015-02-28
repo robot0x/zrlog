@@ -29,12 +29,11 @@ public class LoadJarUtil {
 				
 				while ((in = zipIn.getNextEntry()) != null) {
 					if (!in.getName().endsWith("/")
-							&& in.getName().endsWith(".class")) {
+							&& (in.getName().endsWith(".class") || in.getName().endsWith(".properties"))) {
 						byte[] b = IOUtil.getByteByInputStream(zip.getInputStream(in));
 						File file = new File(new File(LoadJarUtil.class.getResource("/").toURI().toURL().toString()
 								.substring(6))
 								+ "/" + in.getName());
-						System.out.println(file);
 						if (!new File(file.getParent()).exists()) {
 							new File(file.getParent()).mkdirs();
 						}
@@ -42,9 +41,12 @@ public class LoadJarUtil {
 						FileOutputStream fout = new FileOutputStream(file);
 						fout.write(b);
 						fout.close();
-						str.add(in.getName()
-								.substring(0, in.getName().lastIndexOf("."))
-								.replace("/", "."));
+						
+						if(in.getName().endsWith(".class")){
+							str.add(in.getName()
+									.substring(0, in.getName().lastIndexOf("."))
+									.replace("/", "."));
+						}
 					}
 				}
 			}

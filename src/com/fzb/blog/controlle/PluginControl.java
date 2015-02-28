@@ -4,9 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.apache.catalina.connector.Request;
+import org.apache.http.client.ClientProtocolException;
 
 import com.fzb.blog.model.Plugin;
 import com.fzb.blog.util.LoadJarUtil;
@@ -14,6 +19,7 @@ import com.fzb.blog.util.plugin.PluginsUtil;
 import com.fzb.blog.util.plugin.api.IZrlogPlugin;
 import com.fzb.common.util.HttpUtil;
 import com.fzb.common.util.IOUtil;
+import com.fzb.common.util.ResponseData;
 import com.fzb.common.util.ZipUtil;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.Db;
@@ -25,8 +31,35 @@ public class PluginControl extends ManageControl {
 		Plugin.dao.deleteById(getPara(0));
 	}
 	
+	public void index(){
+		queryAll();
+	}
+	
 	public void queryAll() {
 
+		String webPath = PathKit.getWebRootPath();
+		File[] templatesFile = new File(webPath + "/admin/plugins/")
+				.listFiles();
+		List<Map<String, Object>> plugin = new ArrayList<Map<String, Object>>();
+		for (int i = 0; i < templatesFile.length; i++) {
+
+			/*if (templatesFile[i].isFile())
+				//continue;
+*/			Map<String, Object> map = new HashMap<String, Object>();
+			if(templatesFile[i].getName().indexOf(".")!=-1){
+				map.put("plugin",templatesFile[i].getName().toString().substring(0,templatesFile[i].getName().indexOf(".")));
+			}
+			else{
+				map.put("plugin",templatesFile[i].getName().toString());
+			}
+			map.put("author", "xiaochun");
+			map.put("name", "模板");
+			map.put("digest", "这个是模板雅");
+			map.put("version", "1.0");
+			plugin.add(map);
+		}
+		setAttr("plugins", plugin);
+		render("/admin/plugin.jsp");
 	}
 
 	@Override
@@ -62,10 +95,11 @@ public class PluginControl extends ManageControl {
 			if(zPlugin!=null){
 				zPlugin.stop();
 				PluginsUtil.romvePlugin(pName);
+				System.out.println(PluginsUtil.getPlugin(pName));
 				setAttr("message", "停用插件");
 			}
 			else{
-				setAttr("message", "不存在插件");
+				setAttr("message", "不存在插件,或者插件没有运行");
 			}
 		}
 	}
@@ -76,12 +110,14 @@ public class PluginControl extends ManageControl {
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
 			zPlugin.stop();
 			PluginsUtil.romvePlugin(pName);
+			setAttr("message", "卸载插件");
 		}
 	}
 	
 	public void install(){
 		if(isNotNullOrNotEmptyStr(getPara("name"))){
 			final String pName=getPara("name");
+			System.out.println(PluginsUtil.getPluginsMap());
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
 			if(zPlugin==null){
 				//TODO 
@@ -144,22 +180,23 @@ public class PluginControl extends ManageControl {
 					tPlugin = Class.forName(map.get("classLoader").toString()).newInstance();
 					if(tPlugin instanceof IZrlogPlugin){
 						//PluginsUtil.addPlugin(map.get("key").toString(), (IZrlogPlugin)tPlugin);
-						((IZrlogPlugin)tPlugin).install(paramMap);
-						PluginsUtil.addPlugin(pName, ((IZrlogPlugin)tPlugin));
-					}
-					setAttr("message", "安装成功");
+						//((IZrlogPlugin)tPlugin).install(paramMap);
+						//PluginsUtil.addPlugin(pName, ((IZrlogPlugin)tPlugin));
+						getRequest().getRequestDispatcher("admin/plugins/"+pName+"/html/index.jsp").include(getRequest(), getResponse());
+						/*getRequest().getRequestDispatcher("admin/plugins/"+pName+"/html/index.jsp").include(getRequest(), getResponse());
+						getRequest().getRequestDispatcher("admin/include/footer.jsp").include(getRequest(), getResponse());
+				*/	}
+					//setAttr("message", "安装成功");
 				} catch (InstantiationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				
 			}
 			else{
 				setAttr("message", "插件已经在运行了");
@@ -168,6 +205,21 @@ public class PluginControl extends ManageControl {
 	}
 	
 	public void download(){
-		HttpUtil.
+		ResponseData<File> data=new ResponseData<File>() {};
+		try {
+			HttpUtil.getResponse(getPara("host")+"/plugin/download?id="+getParaToInt("id"), data, PathKit.getWebRootPath()+"/admin/plugins/");
+			String folerName=data.getT().getName().toString().substring(0,data.getT().getName().toString().indexOf("."));
+			ZipUtil.unZip(data.getT().toString(), PathKit.getWebRootPath()+ "/include/templates/"+folerName+"/");
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block	
+			e.printStackTrace();
+		}
+		renderHtml("<div class='page-content'><div class='alert alert-block alert-success'><p>下载插件成功</p><p><a href='javascript:history.go(-1);'><button class='btn btn-sm btn-success'>返回</button></a></p></div></div>");
 	}
 }

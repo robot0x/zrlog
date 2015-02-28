@@ -60,7 +60,9 @@ public class UserControl extends ManageControl {
 
 	@Override
 	public void update() {
-		
+		System.out.println("GGGGGGG");
+		new User().set("username", getPara("userName")).set("header", getPara("header")).update();
+		setAttr("message", "个人信息变更成功");
 	}
 
 	public void changePassword() {

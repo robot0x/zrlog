@@ -6,6 +6,7 @@ import com.fzb.blog.controlle.LogNavControl;
 import com.fzb.blog.controlle.ManageLogControl;
 import com.fzb.blog.controlle.PluginControl;
 import com.fzb.blog.controlle.TagControl;
+import com.fzb.blog.controlle.TemplateControl;
 import com.fzb.blog.controlle.TypeControl;
 import com.fzb.blog.controlle.UserControl;
 import com.fzb.blog.controlle.WebSiteControl;
@@ -25,5 +26,6 @@ public class UserRoutes extends Routes {
 		add("/admin/nav", LogNavControl.class);
 		add("/admin/log", ManageLogControl.class);
 		add("/admin/website", WebSiteControl.class);
+		add("/admin/template", TemplateControl.class);
 	}
 }

@@ -2,15 +2,20 @@ package com.fzb.common.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -42,7 +47,7 @@ public class HttpUtil{
 	 * @return 
 	 * @throws IOException
 	 */
-	public static String getResponseText(String urlPath,Map<String,Object> params) throws IOException{
+	public static String sendPostReuqest(String urlPath,Map<String,Object> params) throws IOException{
 		log.info(urlPath+ " http post params "+params);
 		long start=System.currentTimeMillis();
 		CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -59,43 +64,24 @@ public class HttpUtil{
 		log.info("used Time " +html +" " +(System.currentTimeMillis()-start));
 		return html;
 	}
-	public static String getGResponseText(String urlPath) throws IOException{
-		return getResponseText(urlPath, null);
+	/**
+	 * @param urlPath
+	 * @return
+	 * @throws IOException
+	 */
+	public static String getResponse(String urlPath) throws IOException{
+		return getResponse(urlPath, new HashMap<String,Object>());
 	}
 	
-	public static String getGResponseText(String urlPath,Map<String,Object> params) throws IOException{
-		if(params!=null && !params.isEmpty()){
-			urlPath+="?";
-			for (Entry<String, Object> param : params.entrySet()) {
-				if(param.getValue() instanceof List){
-					List<Object> values=(List<Object>) param.getValue();
-					for (Object object : values) {
-						urlPath+=param.getKey()+"="+object+"&";
-					}
-				}
-				else{
-					urlPath+=param.getKey()+"="+param.getValue()+"&";
-				}
-			}
-			urlPath=urlPath.substring(0,urlPath.length()-1);
+	public static String getResponse(String urlPath,Map<String,Object> params) throws IOException{
+		urlPath+=mapToQueryStr(params);
+		ResponseData<String> data=new ResponseData<String>() {};
+		try {
+			return (String)getResponse(urlPath, data).getT();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
 		}
-		log.info(urlPath+ " http get params "+params);
-		long start=System.currentTimeMillis();
-		CloseableHttpClient httpclient = HttpClients.createDefault();
-		
-		System.out.println(urlPath);
-		HttpGet httpget = new HttpGet(urlPath);
-		CloseableHttpResponse response = httpclient.execute(httpget);
-		BufferedReader reader=new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-		String temp=null;
-		StringBuffer sb=new StringBuffer();
-		while((temp=reader.readLine())!=null){
-			sb.append(temp);
-		}
-		reader.close();
-		String html=new String(sb.toString().getBytes(),"utf-8");
-		log.info("used Time " +html +" " +(System.currentTimeMillis()-start));
-		return html;
+		return null;
 	}
 	
 	/**
@@ -134,47 +120,108 @@ public class HttpUtil{
         return httpost;
     }
 	public static ResponseData<?> getResponse(String urlPath,ResponseData<?> i) throws ClientProtocolException, IOException, InstantiationException{
-		long start=System.currentTimeMillis();
+		return getResponse(urlPath, null,i, null);
+	}
+	
+	public static ResponseData<?> getResponse(String urlPath,Map<String,Object> params,ResponseData<?> i) throws ClientProtocolException, IOException, InstantiationException{
+		return getResponse(urlPath, params,i, null);
+	}
+	
+	public static ResponseData<?> getResponse(String urlPath,ResponseData<?> i,String filePath) throws ClientProtocolException, IOException, InstantiationException{
+		return getResponse(urlPath, null,i, filePath);
+	}
+	
+	/**
+	 * 仅用于GET方式的下载文件
+	 * @param urlPath
+	 * @param i
+	 * @param filePath 处理文件是需要这个参数
+	 * @return
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws InstantiationException
+	 */
+	public static ResponseData<?> getResponse(String urlPath,Map<String,Object> params,ResponseData<?> i,String filePath) throws ClientProtocolException, IOException, InstantiationException{
 		CloseableHttpClient httpclient = HttpClients.createDefault();
-		
-		System.out.println(urlPath);
+		urlPath+=mapToQueryStr(params);
 		HttpGet httpget = new HttpGet(urlPath);
-		CloseableHttpResponse response = httpclient.execute(httpget);
-		BufferedReader reader=new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 		Class<?> clazz=i.getClazz();
 		if(clazz==File.class){
-			System.out.println("GGGG");
+			if(filePath==null)return null;
+			File f = null;
+			CloseableHttpResponse response=null;
+			try {
+				if(new URI(urlPath).getPath().indexOf(".")==-1){
+					httpget.getParams().setParameter("http.protocol.handle-redirects",false);
+					response = httpclient.execute(httpget);
+					Header[] headers=response.getAllHeaders();
+					String loca=null;
+					for (Header header : headers) {
+						if("Location".equals(header.getName())){
+							loca=header.getValue();
+							break;
+						}
+					}
+					if(loca!=null){
+						httpget = new HttpGet(loca);
+						String path=new URI(loca).getPath();
+						f=new File(filePath+"/"+path.substring(path.lastIndexOf("/")+1));
+						response = httpclient.execute(httpget);
+					}
+					else{
+						//TODO 还存在跳转吗??
+					}
+				}
+				else{
+					String path=new URI(urlPath).getPath();
+					f=new File(filePath+"/"+path.substring(path.lastIndexOf("/")));
+					response = httpclient.execute(httpget);
+				}
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+			FileOutputStream fin=new FileOutputStream(f);
+			fin.write(IOUtil.getByteByInputStream(response.getEntity().getContent()));
+			fin.close();
+			i.setT(f);
 		}
 		else if(clazz==String.class){
-			String temp=null;
-			StringBuffer sb=new StringBuffer();
-			while((temp=reader.readLine())!=null){
-				sb.append(temp);
-			}
-			reader.close();
-			String html=new String(sb.toString().getBytes(),"utf-8");
+			CloseableHttpResponse response = httpclient.execute(httpget);
+			String html=IOUtil.getStringInputStream(response.getEntity().getContent());
 			i.setT(html);
 		}
 		return i;
-		/*BufferedReader reader=new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-		
-		
-		return respData;*/
+	}
+	
+	private static String mapToQueryStr(Map<String,Object> params){
+		String queryStr="";
+		if(params!=null && !params.isEmpty()){
+			queryStr+="?";
+			for (Entry<String, Object> param : params.entrySet()) {
+				if(param.getValue() instanceof List){
+					@SuppressWarnings("unchecked")
+					List<Object> values=(List<Object>) param.getValue();
+					for (Object object : values) {
+						queryStr+=param.getKey()+"="+object+"&";
+					}
+				}
+				else{
+					queryStr+=param.getKey()+"="+param.getValue()+"&";
+				}
+			}
+			queryStr=queryStr.substring(0,queryStr.length()-1);
+		}
+		return queryStr;
 	}
 	
 	public static void main(String[] args) throws IOException{
-		/*ResponseData<File> i=new ResponseData<File>(){};
-		File f=i.getT();*/
-		
-		ResponseData<String> i=new ResponseData<String>(){};
-		
+		ResponseData<File> i=new ResponseData<File>(){};
 		try {
-			getResponse("http://www.baidu.com", i);
+			getResponse("http://localhost:8080/zrlog_ext/plugin/download?id=1", i,"E:/test");
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		String f=i.getT();
+		File f=i.getT();
 		System.out.println(f);
 	}
 }
