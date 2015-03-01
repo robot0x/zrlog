@@ -4,6 +4,7 @@ import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;
 import com.fzb.blog.model.User;
 import com.fzb.common.util.Md5Util;
+import com.jfinal.plugin.activerecord.Db;
 
 public class UserControl extends ManageControl {
 	public void delete() {
@@ -60,8 +61,7 @@ public class UserControl extends ManageControl {
 
 	@Override
 	public void update() {
-		System.out.println("GGGGGGG");
-		new User().set("username", getPara("userName")).set("header", getPara("header")).update();
+		Db.update("update user set header=? where userName=?",getPara("header"),getPara("userName"));
 		setAttr("message", "个人信息变更成功");
 	}
 

@@ -136,7 +136,11 @@ public class PluginControl extends ManageControl {
 				paramMap.remove("name");
 				Object tPlugin;
 				try {
-					Map<String,Object> map=getPluginMsgByZipFileName(pName);;
+					Map<String,Object> map=getPluginMsgByZipFileName(pName);
+					if(isNotNullOrNotEmptyStr(getPara("step"))){
+						getRequest().getRequestDispatcher("/admin/page.jsp?include=plugins/"+pName+"/html/"+map.get("page")).forward(getRequest(), getResponse());
+						return;
+					}
 					Thread.currentThread().getContextClassLoader().loadClass(map.get("classLoader").toString());
 					tPlugin = Class.forName(map.get("classLoader").toString()).newInstance();
 					if(tPlugin instanceof IZrlogPlugin){
@@ -166,8 +170,8 @@ public class PluginControl extends ManageControl {
 			HttpUtil.getResponse(getPara("host")+"/plugin/download?id="+getParaToInt("id"), data, PathKit.getWebRootPath()+"/admin/plugins/");
 			String folerName=data.getT().getName().toString().substring(0,data.getT().getName().toString().indexOf("."));
 			Map<String,Object> map=getPluginMsgByZipFileName(folerName);
-			getRequest().getRequestDispatcher("/admin/plugins/"+folerName+"/html/"+map.get("page")).forward(getRequest(), getResponse());
-		} catch (Exception e) {
+			getRequest().getRequestDispatcher("/admin/page.jsp?include=plugins/"+folerName+"/html/"+map.get("page")).forward(getRequest(), getResponse());
+			} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -1,12 +1,9 @@
 package com.fzb.blog.config;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import com.fzb.blog.controlle.APIControl;
 import com.fzb.blog.controlle.InstallControl;
@@ -36,7 +33,6 @@ import com.jfinal.i18n.I18N;
 import com.jfinal.kit.PathKit;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.activerecord.Db;
-import com.jfinal.plugin.activerecord.DbKit;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 import com.jfinal.plugin.ehcache.EhCachePlugin;
 import com.jfinal.render.ViewType;
@@ -47,6 +43,9 @@ import flexjson.JSONDeserializer;
  * @author zhengchangchun JFinal 一些参数的配置
  */
 public class JFanilConfig extends JFinalConfig {
+	
+	private static Logger log=Logger.getLogger(JFanilConfig.class);
+	
 	public void configConstant(Constants con) {
 		con.setDevMode(true);
 		con.setViewType(ViewType.JSP);
@@ -77,7 +76,7 @@ public class JFanilConfig extends JFinalConfig {
 				return;
 			}
 			// 启动时候进行数据库链接,
-			loadPropertyFile("db.properties");
+			loadPropertyFile("db.properties");  
 			C3p0Plugin c3p0Plugin = new C3p0Plugin(getProperty("jdbcUrl"),
 					getProperty("user"), getProperty("password"));
 			plugins.add(c3p0Plugin);
@@ -108,12 +107,18 @@ public class JFanilConfig extends JFinalConfig {
 			List<Object[]> zPlugins=Db.query("select content,pluginName from plugin where level=?",-1);
 			for (Object[] pluginStr : zPlugins) {
 				Map<String,Object> map=new JSONDeserializer<Map<String,Object>>().deserialize(pluginStr[0].toString());
-				Object tPlugin=Class.forName(map.get("classLoader").toString()).newInstance();
-				if(tPlugin instanceof IZrlogPlugin){
-					if(Integer.parseInt(map.get("status").toString())==2){
-						PluginsUtil.addPlugin(pluginStr[1].toString(), (IZrlogPlugin)tPlugin);
+				try{
+					Object tPlugin=Class.forName(map.get("classLoader").toString()).newInstance();
+					if(tPlugin instanceof IZrlogPlugin){
+						if(Integer.parseInt(map.get("status").toString())==2){
+							PluginsUtil.addPlugin(pluginStr[1].toString(), (IZrlogPlugin)tPlugin);
+						}
 					}
+				}catch(Exception e){
+					e.printStackTrace();
+					log.warn("load Plugin "+pluginStr[1] +" fialed " +e.getMessage());
 				}
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

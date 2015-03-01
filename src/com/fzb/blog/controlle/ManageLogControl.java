@@ -56,6 +56,7 @@ public class ManageLogControl extends ManageControl {
 		}
 
 		// 自动摘要
+		//System.out.println(param.get("digest"));
 		if (param.get("digest") == null || "".equals(param.get("digest"))) {
 			log.set("digest", log.get("content"));
 		}
@@ -159,6 +160,7 @@ public class ManageLogControl extends ManageControl {
 		Map<String, String[]> param = getRequest().getParameterMap();
 		Log log = new Log();
 		for (Map.Entry tmap : param.entrySet()) {
+			System.out.println(((String[]) tmap.getValue())[0].length());
 			log.set((String) tmap.getKey(), ((String[]) tmap.getValue())[0]);
 		}
 		int logId = log.getMaxRecord() + 1;
@@ -183,9 +185,10 @@ public class ManageLogControl extends ManageControl {
 
 		// 自动摘要
 		if (param.get("digest") == null || "".equals(param.get("digest"))) {
+			System.out.println("GGGGGGGGGGGGGG");
 			log.set("digest", log.get("content"));
 		}
-
+		System.out.println(param.get("digest"));
 		//
 		Tag.dao.insertTag(getPara("keywords"));
 		Object map = new HashMap<String,Object>();
