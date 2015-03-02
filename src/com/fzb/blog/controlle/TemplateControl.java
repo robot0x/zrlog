@@ -81,8 +81,7 @@ public class TemplateControl extends ManageControl {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		renderHtml("<div class='page-content'><div class='alert alert-block alert-success'><p>下载模板成功</p><p><a href='javascript:history.go(-1);'><button class='btn btn-sm btn-success'>返回</button></a></p></div></div>");
-
+		setAttr("message", "下载模板成功");
 	}
 
 }

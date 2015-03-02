@@ -2,25 +2,14 @@ package com.fzb.common.util;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipError;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Node;
-
-import com.jfinal.kit.PathKit;
 
 public class ParseTools {
 	public static int getFirstRecord(int page, int pageSize) {
@@ -32,15 +21,11 @@ public class ParseTools {
 	}
 
 	public static String autoDigest(String str, int size) {
-		String digest = "";
-		/*
-		 * Document document = Jsoup.parse(str); Node localNode = null; for
-		 * (Iterator localIterator = document.childNodes().iterator();
-		 * localIterator.hasNext(); localNode = (Node)localIterator.next()){
-		 * if(localNode!=null){ digest=localNode.outerHtml(); }
-		 * System.out.println(localNode); } System.out.println(digest);
-		 */
-		return str;
+		String digest=str.replaceAll("<[^>]*>", "");
+		if(digest.length()>200){
+			digest=digest.substring(0, size)+"  ...";
+		}
+		return digest;
 	}
 
 	public static String toISO8601(Date releaseTime) {
@@ -59,24 +44,25 @@ public class ParseTools {
 	}
 
 	public static void main(String[] args) {
-		/*try {
-			getDataBySdf("yyyy-MM-dd hh:mm", "2014-03-16T22:57:26+08:00");
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		/*
+		 * try { getDataBySdf("yyyy-MM-dd hh:mm", "2014-03-16T22:57:26+08:00");
+		 * } catch (ParseException e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); }
+		 */
 		ZipInputStream zipIn;
 		try {
 			zipIn = new ZipInputStream(new FileInputStream("E:/putty.zip"));
-			ZipEntry in=null;
-			ZipFile zip=new ZipFile("E:/putty.zip");
-			while((in=zipIn.getNextEntry())!=null){
-				InputStream fin=zip.getInputStream(in);
-				byte[] b=IOUtil.getByteByInputStream(fin);
+			ZipEntry in = null;
+			ZipFile zip = new ZipFile("E:/putty.zip");
+			while ((in = zipIn.getNextEntry()) != null) {
+				InputStream fin = zip.getInputStream(in);
+				byte[] b = IOUtil.getByteByInputStream(fin);
 				System.out.println(new String(b));
-				
-				/*System.out.println(in);
-				System.out.println(in.getCompressedSize());*/
+
+				/*
+				 * System.out.println(in);
+				 * System.out.println(in.getCompressedSize());
+				 */
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block

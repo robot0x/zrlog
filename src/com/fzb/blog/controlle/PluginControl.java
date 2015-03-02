@@ -94,9 +94,10 @@ public class PluginControl extends ManageControl {
 			String pName=getPara("name");
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
 			if(zPlugin!=null){
-				//FIXME 这里存在静态Map无法remove Key的情况
-				PluginsUtil.romvePlugin(pName);
+				//TODO 为撒打包为Jar后无法移除了呢。
+				//PluginsUtil.romvePlugin(pName);
 				setAttr("message", "停用插件");
+				PluginsUtil.getPluginsMap().remove(pName);
 				new Plugin().updatePluginStatus(pName, 3);
 			}
 			else{

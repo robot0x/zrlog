@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
@@ -90,7 +91,7 @@ public class ManageLogControl extends ManageControl {
 			log.set("recommended", Boolean.valueOf(false));
 		}
 		
-		if (getPara("digest") == null || "".equals(getPara("digest"))) {
+		if (log.get("digest") == null || "".equals(log.get("digest"))) {
 			log.set("digest",
 					ParseTools.autoDigest(log.get("content").toString(), 200));
 		} else {
@@ -127,8 +128,9 @@ public class ManageLogControl extends ManageControl {
 		}
 
 		// 自动摘要
-		if (param.get("digest") == null || "".equals(param.get("digest"))) {
-			log.set("digest", log.get("content"));
+		if (log.get("digest") == null || "".equals(log.get("digest"))) {
+			log.set("digest",
+					ParseTools.autoDigest(log.get("content").toString(), 200));
 		}
 		log.put("lastLog", Log.dao.getLastLog(logId));
 		log.put("nextLog", Log.dao.getNextLog(logId));
@@ -159,9 +161,10 @@ public class ManageLogControl extends ManageControl {
 	public void add() {
 		Map<String, String[]> param = getRequest().getParameterMap();
 		Log log = new Log();
-		for (Map.Entry tmap : param.entrySet()) {
-			System.out.println(((String[]) tmap.getValue())[0].length());
-			log.set((String) tmap.getKey(), ((String[]) tmap.getValue())[0]);
+		for (Entry<String,String[]> tmap : param.entrySet()) {
+			if(tmap.getValue().length>0){
+				log.set((String) tmap.getKey(), ((String[]) tmap.getValue())[0]);
+			}
 		}
 		int logId = log.getMaxRecord() + 1;
 		((Log) log.set("userId",
@@ -182,13 +185,10 @@ public class ManageLogControl extends ManageControl {
 		} else {
 			log.set("recommended", Boolean.valueOf(false));
 		}
-
 		// 自动摘要
-		if (param.get("digest") == null || "".equals(param.get("digest"))) {
-			System.out.println("GGGGGGGGGGGGGG");
-			log.set("digest", log.get("content"));
+		if (log.get("digest") == null || "".equals(log.get("digest"))) {
+			log.set("digest", ParseTools.autoDigest(log.get("content").toString(), 200));
 		}
-		System.out.println(param.get("digest"));
 		//
 		Tag.dao.insertTag(getPara("keywords"));
 		Object map = new HashMap<String,Object>();
