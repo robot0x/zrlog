@@ -111,7 +111,7 @@ public class PluginControl extends ManageControl {
 			String pName=getPara("name");
 			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
 			if(zPlugin!=null){
-				PluginsUtil.romvePlugin(pName);
+				PluginsUtil.getPluginsMap().remove(pName);
 				setAttr("message", "卸载插件");
 				zPlugin.unstall();
 				//TODO 删除解压的文件和数据库记录
@@ -139,6 +139,8 @@ public class PluginControl extends ManageControl {
 				try {
 					Map<String,Object> map=getPluginMsgByZipFileName(pName);
 					if(isNotNullOrNotEmptyStr(getPara("step"))){
+						setAttr("mTitle", "插件设置");
+						setAttr("sTitle", map.get("desc")+" 设置");
 						getRequest().getRequestDispatcher("/admin/page.jsp?include=plugins/"+pName+"/html/"+map.get("page")).forward(getRequest(), getResponse());
 						return;
 					}
@@ -171,6 +173,8 @@ public class PluginControl extends ManageControl {
 			HttpUtil.getResponse(getPara("host")+"/plugin/download?id="+getParaToInt("id"), data, PathKit.getWebRootPath()+"/admin/plugins/");
 			String folerName=data.getT().getName().toString().substring(0,data.getT().getName().toString().indexOf("."));
 			Map<String,Object> map=getPluginMsgByZipFileName(folerName);
+			setAttr("mTitle", "插件设置");
+			setAttr("sTitle", map.get("desc")+" 设置");
 			getRequest().getRequestDispatcher("/admin/page.jsp?include=plugins/"+folerName+"/html/"+map.get("page")).forward(getRequest(), getResponse());
 			} catch (Exception e) {
 			e.printStackTrace();
@@ -189,7 +193,6 @@ public class PluginControl extends ManageControl {
 		String classPath=PathKit.getWebRootPath()+"/WEB-INF/";
 		ZipUtil.unZip(pluginPath+".zip", pluginPath+"/temp/");
 		String installStr;
-		//FIXME 中文乱码问题
 		installStr = IOUtil.getStringInputStream(new FileInputStream(pluginPath+"/temp/installGuide.txt"));
 		String installArgs[]=installStr.split("\r\n");
 		Map<String,Object> tmap=new HashMap<String, Object>();

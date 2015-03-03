@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public class IOUtil {
@@ -32,7 +33,13 @@ public class IOUtil {
 	}
 
 	public static final String getStringInputStream(InputStream in) {
-		return new String(getByteByInputStream(in));
+		try {
+			return new String(getByteByInputStream(in),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static final void getAllFiles(String path, List<File> files) {
