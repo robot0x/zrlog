@@ -122,8 +122,8 @@ public class IOUtil {
 		try {
 			long s = System.currentTimeMillis();
 			File f = new File(src);
-			FileInputStream in = new FileInputStream(src);
-			new File(tag).createNewFile();
+			FileInputStream in = new FileInputStream(f);
+			new File(tag).getParentFile().mkdirs();
 			FileOutputStream out = new FileOutputStream(tag);
 			// 小于1M(大小根据自己的情况而定)的文件直接一次性写入。
 			byte[] b = new byte[1024];

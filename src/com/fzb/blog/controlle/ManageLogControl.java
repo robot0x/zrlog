@@ -9,11 +9,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 
-import org.apache.commons.io.FileUtils;
-
 import com.fzb.blog.model.Log;
 import com.fzb.blog.model.Tag;
 import com.fzb.blog.model.User;
+import com.fzb.common.util.IOUtil;
 import com.fzb.common.util.ParseTools;
 import com.fzb.io.api.FileManageAPI;
 import com.fzb.yunstore.BucketVO;
@@ -200,41 +199,32 @@ public class ManageLogControl extends ManageControl {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		String fileExt = getFile("imgFile")
 				.getFileName()
-				.substring(
-						getFile("imgFile").getFileName().lastIndexOf(".") + 1)
+				.substring(getFile("imgFile").getFileName().lastIndexOf(".") + 1)
 				.toLowerCase();
 		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
 		String url = "/attached/" + getPara("dir") + "/"
 				+ sdf.format(new Date()) + "/" + df.format(new Date()) + "_"
 				+ new Random().nextInt(1000) + "." + fileExt;
+		IOUtil.moveOrCopyFile(PathKit.getWebRootPath()+"/attached/"+getFile("imgFile").getFileName(),PathKit.getWebRootPath() + url,true);
+		getData().put("error", Integer.valueOf(0));
 
-		try {
-			FileUtils.moveFile(getFile("imgFile").getFile().getAbsoluteFile(),
-					new File(PathKit.getWebRootPath() + url));
-			getData().put("error", Integer.valueOf(0));
-
-			// put to cloud
-			String prefix = getStrValuebyKey("bucket_type");
-			if (prefix != null) {
-				BucketVO bucket = new BucketVO(getStrValuebyKey(prefix
-						+ "_bucket"), getStrValuebyKey(prefix + "_access_key"),
-						getStrValuebyKey(prefix + "_secret_key"),
-						getStrValuebyKey(prefix + "_host"));
-				FileManageAPI man = new QiniuBucketManageImpl(bucket);
-				String nurl = man
-						.create(new File(PathKit.getWebRootPath() + url), url)
-						.get("url").toString();
-				getData().put("url", nurl);
-			} else {
-				if (getRequest().getContextPath() != null) {
-					url = getRequest().getContextPath() + url;
-				}
-				getData().put("url", url);
+		// put to cloud
+		String prefix = getStrValuebyKey("bucket_type");
+		if (prefix != null) {
+			BucketVO bucket = new BucketVO(getStrValuebyKey(prefix
+					+ "_bucket"), getStrValuebyKey(prefix + "_access_key"),
+					getStrValuebyKey(prefix + "_secret_key"),
+					getStrValuebyKey(prefix + "_host"));
+			FileManageAPI man = new QiniuBucketManageImpl(bucket);
+			String nurl = man
+					.create(new File(PathKit.getWebRootPath() + url), url)
+					.get("url").toString();
+			getData().put("url", nurl);
+		} else {
+			if (getRequest().getContextPath() != null) {
+				url = getRequest().getContextPath() + url;
 			}
-
-		} catch (IOException e) {
-			getData().put("error", "上传失败了");
-			e.printStackTrace();
+			getData().put("url", url);
 		}
 		renderJson(getData());
 	}
