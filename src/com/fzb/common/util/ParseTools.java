@@ -21,8 +21,8 @@ public class ParseTools {
 	}
 
 	public static String autoDigest(String str, int size) {
-		String digest=str.replaceAll("<[^>]*>", "");
-		if(digest.length()>200){
+		String digest=str.replaceAll("<[^>]*>", "").replaceAll("\t|\r|", "").replace("\n", " ");
+		if(digest.length()>size){
 			digest=digest.substring(0, size)+"  ...";
 		}
 		return digest;
