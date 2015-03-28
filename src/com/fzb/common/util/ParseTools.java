@@ -28,6 +28,18 @@ public class ParseTools {
 		return digest;
 	}
 
+	/**
+	 * @param str
+	 * @param defalutValue
+	 * @return
+	 */
+	public static int strToInt(String str,int defalutValue){
+		if (str.matches("^-?[1-9]\\d*$")) {
+			return Integer.parseInt(str);
+		}
+		return defalutValue;
+	}
+	
 	public static String toISO8601(Date releaseTime) {
 		return releaseTime.getYear() + 1900 + (releaseTime.getMonth() + 1)
 				+ releaseTime.getDate() + "T" + releaseTime.getHours()

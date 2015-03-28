@@ -203,8 +203,10 @@ public class Log extends Model<Log> implements Serializable {
 	}
 	
 	public void clickChange(int logId){
-		Log log=new Log();
-		Integer click=log.findById(logId).get("click");
-		log.set("logId", logId).set("click", click+1).update();
+		Log log=findById(logId);
+		if(log!=null){
+			Integer click=log.get("click");
+			log.set("logId", logId).set("click", click+1).update();
+		}
 	}
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Log;
 import com.fzb.blog.model.Type;
+import com.fzb.common.util.ParseTools;
 
 public class QueryLogControl extends BaseControl {
 	public void index() {
@@ -77,18 +78,20 @@ public class QueryLogControl extends BaseControl {
 	}
 	
 	public void detail() {
-		Map log = new HashMap();
+		Map<String,Object> log = new HashMap<String,Object>();
 		Integer logId = null;
+		String alias=getPara();
 		try {
-			logId = getParaToInt(0);
-			if(logId==null){
-				logId=getParaToInt("logId");
+			if( getPara("logId")!=null){
+				logId=Integer.parseInt(getPara("logId"));
+			}
+			else{
+				logId = Integer.parseInt(alias);
 			}
 		} catch (NumberFormatException e) {
-			logId = Integer.valueOf(Log.dao.getLogByLogIdAlias(getPara(0)));
+			logId = Integer.valueOf(Log.dao.getLogByLogIdAlias(alias));
 		}
 		if (logId != 0) {
-			
 			Log.dao.clickChange(logId);
 			log.putAll(Log.dao.getLogByLogId(logId.intValue()));
 			log.put("lastLog", Log.dao.getLastLog(logId.intValue()));
@@ -115,26 +118,27 @@ public class QueryLogControl extends BaseControl {
 	}
 
 	public void tag() {
-		try {
-			setAttr("data", Log.dao.getLogsByTag(
-					getParaToInt(1, Integer.valueOf(1)).intValue(),
-					getDefaultRows(), URLDecoder.decode(getPara(0), "UTF-8")));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		setAttr("yurl", "post/tag/" + getPara(0) + "-");
-		setAttr("tipsType", "标签");
-		try {
-			setAttr("tipsName", URLDecoder.decode(getPara(0), "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		if(getPara(0)!=null){
+			try {
+				setAttr("data", Log.dao.getLogsByTag(
+						getParaToInt(1, Integer.valueOf(1)).intValue(),
+						getDefaultRows(), URLDecoder.decode(getPara(0), "UTF-8")));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			setAttr("yurl", "post/tag/" + getPara(0) + "-");
+			setAttr("tipsType", "标签");
+			try {
+				setAttr("tipsName", URLDecoder.decode(getPara(0), "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	public void all() {
-		setAttr("data", Log.dao.getLogsByPage(
-				getParaToInt(1, Integer.valueOf(1)).intValue(),
-				getDefaultRows()));
+		int page=ParseTools.strToInt(getPara(1), 1);
+		setAttr("data", Log.dao.getLogsByPage(page,getDefaultRows()));
 		setAttr("yurl", "post/all-");
 	}
 }
