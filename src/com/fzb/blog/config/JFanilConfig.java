@@ -2,6 +2,7 @@ package com.fzb.blog.config;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -115,7 +116,6 @@ public class JFanilConfig extends JFinalConfig {
 						}
 					}
 				}catch(Exception e){
-					e.printStackTrace();
 					log.warn("load Plugin "+pluginStr[1] +" fialed " +e.getMessage());
 				}
 				
@@ -123,7 +123,9 @@ public class JFanilConfig extends JFinalConfig {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		// duqu 
+		JFinal.me().getServletContext().setAttribute("system", System.getProperties());
+				
 	}
 	public void configRoute(Routes routes) {
 		// 添加浏览者能访问Control 路由
