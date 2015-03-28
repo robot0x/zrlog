@@ -34,6 +34,7 @@ public class ParseTools {
 	 * @return
 	 */
 	public static int strToInt(String str,int defalutValue){
+		if(str==null) return defalutValue;
 		if (str.matches("^-?[1-9]\\d*$")) {
 			return Integer.parseInt(str);
 		}
