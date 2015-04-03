@@ -12,7 +12,7 @@ import java.util.Map;
    public static final Type dao = new Type();
  
    public List<Type> queryAll() {
-     return dao.find("select t.typeId as id,t.alias,t.typeName,t.remark,(select count(logId) from log where typeid=t.typeid) as typeamount from type t");
+     return dao.find("select t.typeId as id,t.alias,t.typeName,t.remark,(select count(logId) from log where rubbish=? and private=? and typeid=t.typeid) as typeamount from type t",false,false);
    }
    
    public Map<String,Object> queryAll(Integer page,Integer pageSize)

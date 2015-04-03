@@ -21,7 +21,7 @@ import java.util.Map;
      return webSites;
    }
    public boolean updateByKV(String name,String value){
-	   if(Db.queryInt("select siteid from webSite where name=?",name)!=null){
+	   if(Db.queryInt("select siteid from website where name=?",name)!=null){
 		   Db.update("update website set value=? where name=?",value,name);
 	   }
 	   else{

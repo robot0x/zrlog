@@ -5,14 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -27,9 +25,9 @@ import com.fzb.blog.model.User;
 import com.fzb.blog.model.WebSite;
 import com.jfinal.config.Plugins;
 import com.jfinal.core.JFinal;
-import com.jfinal.plugin.IPlugin;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
+import com.jfinal.plugin.ehcache.EhCachePlugin;
 
 public class InstallUtil {
 
@@ -106,17 +104,10 @@ public class InstallUtil {
 			prop.putAll(dbConn);
 			prop.store(out, "This is a database configuration file");
 			out.close();
-			File sqlFile=new File(basePath+"/cms.sql");
-			InputStream in=new FileInputStream(sqlFile);
-			byte[] b=new byte[1024];
-			StringBuffer s=new StringBuffer();
-			while((in.read(b))!=-1)
-			{
-				s.append(new String(b));
-				b=new byte[1024];
-			}
-			String[] sql=s.toString().trim().split("\n");
-			 String tempSqlStr="";
+			File sqlFile=new File(basePath+"/install.sql");
+			String s= IOUtil.getStringInputStream(new FileInputStream(sqlFile));
+			String[] sql=s.split("\n");
+			String tempSqlStr="";
 			for(String sqlSt:sql){
 				if(sqlSt.startsWith("#")){
 					continue;
@@ -124,7 +115,6 @@ public class InstallUtil {
 				if(sqlSt.startsWith("/*")){
 					continue;
 				}
-				System.out.println(sqlSt);
 				tempSqlStr+=sqlSt;
 			}
 			sql=tempSqlStr.split(";");
@@ -136,6 +126,7 @@ public class InstallUtil {
 				if(!"".equals(sqlSt))
 				{
 					st=connect.createStatement();
+					System.out.println(sqlSt.length());
 					st.execute(sqlSt);
 					cnt++;
 				}
@@ -209,12 +200,6 @@ public class InstallUtil {
 			// 添加表与实体的映射关系
 			plugins.add(arp);
 			return true;
-		} catch (FileNotFoundException e) {
-			lock.delete();
-			e.printStackTrace();
-		} catch (IOException e) {
-			lock.delete();
-			e.printStackTrace();
 		} catch (Exception e) {
 			lock.delete();
 			e.printStackTrace();

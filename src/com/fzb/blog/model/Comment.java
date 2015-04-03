@@ -1,9 +1,15 @@
 package com.fzb.blog.model;
 
 import com.fzb.common.util.ParseTools;
+import com.jfinal.plugin.activerecord.Db;
 /*    */
 import com.jfinal.plugin.activerecord.Model;
 
+
+
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 /*    */
 import java.util.HashMap;
 /*    */
@@ -30,7 +36,17 @@ public class Comment extends Model<Comment> {
 		fillData(page, pageSize, "from comment", data, new Object[0]);
 		return data;
 	}
-
+	
+	public Long getCommentCount(){
+		String sql="select count(1) from comment";
+		return Db.findFirst(sql).get("count(1)");
+	}
+	
+	public Long getToDayCommentCount(){
+		String sql="select count(1) from comment where DATE_FORMAT(commTime,'%Y_%m_%d')=?";
+		return Db.findFirst(sql,new SimpleDateFormat("yyyy_MM_dd").format(new Date())).get("count(1)");
+	}
+	
 	public Map<String, Object> noRead(int page, int pageSize) {
 		Map data = new HashMap();
 		String sql = "select commentId as id,userComment,userMail,userHome,userIp,userName,hide,logId from comment limit ?,?";

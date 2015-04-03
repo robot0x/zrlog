@@ -2,6 +2,7 @@ package com.fzb.blog.controlle;
 
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;
+import com.fzb.blog.model.Log;
 import com.fzb.blog.model.User;
 import com.fzb.common.util.Md5Util;
 import com.jfinal.plugin.activerecord.Db;
@@ -40,6 +41,9 @@ public class UserControl extends ManageControl {
 			if (user != null) {
 				getSession().setAttribute("user", user);
 				getSession().setAttribute("comments", Comment.dao.noRead(1, 5));
+				getSession().setAttribute("commCount", Comment.dao.getCommentCount());
+				getSession().setAttribute("toDayCommCount", Comment.dao.getToDayCommentCount());
+				getSession().setAttribute("clickCount", Log.dao.getAllClick());
 				if (getPara("redirectFrom") != null
 						&& !"".equals(getPara("redirectFrom"))) {
 					redirect(getPara("redirectFrom"));

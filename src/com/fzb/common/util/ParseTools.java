@@ -11,6 +11,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
+import com.fzb.blog.dev.ThemeUtil;
+
 public class ParseTools {
 	public static int getFirstRecord(int page, int pageSize) {
 		return (page - 1) * pageSize;
@@ -62,7 +64,7 @@ public class ParseTools {
 		 * } catch (ParseException e) { // TODO Auto-generated catch block
 		 * e.printStackTrace(); }
 		 */
-		ZipInputStream zipIn;
+		/*ZipInputStream zipIn;
 		try {
 			zipIn = new ZipInputStream(new FileInputStream("E:/putty.zip"));
 			ZipEntry in = null;
@@ -72,10 +74,10 @@ public class ParseTools {
 				byte[] b = IOUtil.getByteByInputStream(fin);
 				System.out.println(new String(b));
 
-				/*
+				
 				 * System.out.println(in);
 				 * System.out.println(in.getCompressedSize());
-				 */
+				 
 			}
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -83,6 +85,8 @@ public class ParseTools {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+		
+		ThemeUtil.generateTheme("simple", "E:/test");
 	}
 }

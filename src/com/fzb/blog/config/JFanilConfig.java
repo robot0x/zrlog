@@ -71,6 +71,7 @@ public class JFanilConfig extends JFinalConfig {
 		try {
 			JFinal.me().getServletContext().setAttribute("plugins", plugins);
 			// 如果不存在 install.lock 文件的情况下不初始化数据
+			plugins.add(new EhCachePlugin());
 			if (!new InstallUtil(PathKit.getWebRootPath() + "/WEB-INF")
 					.checkInstall()) {
 				System.out.println("GGGGGGGGG");
@@ -93,7 +94,6 @@ public class JFanilConfig extends JFinalConfig {
 			arp.addMapping("tag", "tagId", Tag.class);
 			// 添加表与实体的映射关系
 			plugins.add(arp);
-			plugins.add(new EhCachePlugin());
 			
 		} catch (Exception e) {
 			e.printStackTrace();

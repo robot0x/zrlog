@@ -12,7 +12,7 @@ import java.util.Map;
    public static final LogNav dao = new LogNav();
  
    public List<LogNav> queryAll(String baseUrl) {
-     String sql = "select l.navId as id,l.navName,l.url,l.sort from  logNav l order by sort";
+     String sql = "select l.navId as id,l.navName,l.url,l.sort from  lognav l order by sort";
      List<LogNav> navs=find(sql);
      for (LogNav logNav : navs) {
     	 if(logNav.get("url").toString().startsWith("/")){
@@ -23,15 +23,15 @@ import java.util.Map;
    }
    
    public List<LogNav> queryAll() {
-	     String sql = "select l.navId as id,l.navName,l.url,l.sort from  logNav l order by sort";
+	     String sql = "select l.navId as id,l.navName,l.url,l.sort from  lognav l order by sort";
 	     return find(sql);
 	   }
    
    public Map<String,Object> queryAll(Integer page,Integer pageSize)
    {
 	   Map<String,Object> data=new HashMap<String,Object>();
-	   data.put("rows", find("select l.navId as id,l.navName,l.url,l.sort from  logNav l order by sort limit ?,?", new Object[] { Integer.valueOf(ParseTools.getFirstRecord(page, pageSize)), Integer.valueOf(pageSize) }));
-       fillData(page, pageSize, "from logNav", data, new Object[0]);
+	   data.put("rows", find("select l.navId as id,l.navName,l.url,l.sort from  lognav l order by sort limit ?,?", new Object[] { Integer.valueOf(ParseTools.getFirstRecord(page, pageSize)), Integer.valueOf(pageSize) }));
+       fillData(page, pageSize, "from lognav", data, new Object[0]);
        return data;
    }
    

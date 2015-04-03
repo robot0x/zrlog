@@ -79,21 +79,12 @@ public class QueryLogControl extends BaseControl {
 	
 	public void detail() {
 		Map<String,Object> log = new HashMap<String,Object>();
-		Integer logId = null;
-		String alias=getPara();
-		try {
-			if( getPara("logId")!=null){
-				logId=Integer.parseInt(getPara("logId"));
-			}
-			else{
-				logId = Integer.parseInt(alias);
-			}
-		} catch (NumberFormatException e) {
-			logId = Integer.valueOf(Log.dao.getLogByLogIdAlias(alias));
-		}
-		if (logId != 0) {
+		Object tlogId = getPara();
+		Map<String, Object> data=Log.dao.getLogByLogId(tlogId);
+		if(data!=null){
+			Integer logId=(Integer) data.get("logId");
+			log.putAll(Log.dao.getLogByLogId(tlogId));
 			Log.dao.clickChange(logId);
-			log.putAll(Log.dao.getLogByLogId(logId.intValue()));
 			log.put("lastLog", Log.dao.getLastLog(logId.intValue()));
 			log.put("nextLog", Log.dao.getNextLog(logId.intValue()));
 			log.put("comments", Comment.dao.getCommentsByLogId(logId));
