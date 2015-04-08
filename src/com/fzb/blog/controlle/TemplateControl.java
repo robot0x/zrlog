@@ -1,6 +1,8 @@
 package com.fzb.blog.controlle;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +13,7 @@ import org.apache.http.client.ClientProtocolException;
 
 import com.fzb.blog.model.Link;
 import com.fzb.common.util.HttpUtil;
+import com.fzb.common.util.IOUtil;
 import com.fzb.common.util.ResponseData;
 import com.fzb.common.util.ZipUtil;
 import com.jfinal.kit.PathKit;
@@ -26,6 +29,18 @@ public class TemplateControl extends ManageControl {
 	
 	public void index(){
 		queryAll();
+	}
+	
+	public void loadFile(){
+		String file=getRequest().getRealPath("/")+getPara("file");
+		Map<String,Object> map=new HashMap<String,Object>();
+		try {
+			String fileContent=IOUtil.getStringInputStream(new FileInputStream(file));
+			map.put("fileContent", fileContent);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		renderJson(map);
 	}
 
 	public void queryAll() {

@@ -1,7 +1,6 @@
 package com.fzb.blog.controlle;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,79 +23,14 @@ public class ManageLogControl extends ManageControl {
 	public void timeline() {
 		render("/admin/ext/timeline.jsp");
 	}
-
-	public void write() {
-		render("/admin/edit.jsp");
-	}
 	
-	public void addToSession(){
-		Map<String, String[]> param = getRequest().getParameterMap();
-		Log log = new Log();
-		for (Map.Entry tmap : param.entrySet()) {
-			log.set((String) tmap.getKey(), ((String[]) tmap.getValue())[0]);
-		}
-		int logId = log.getMaxRecord() + 1;
-		((Log) log.set("userId",
-				((User) getSessionAttr("user")).getInt("userId"))).set(
-				"releaseTime", new Date());
-		log.set("logId", Integer.valueOf(logId));
-
-		if (param.get("alias") == null) {
-			log.set("alias", Integer.valueOf(logId));
-		}
-		if (param.get("canComment") != null) {
-			log.set("canComment", Boolean.valueOf(true));
-		} else {
-			log.set("canComment", Boolean.valueOf(false));
-		}
-		if (param.get("recommended") != null) {
-			log.set("recommended", Boolean.valueOf(true));
-		} else {
-			log.set("recommended", Boolean.valueOf(false));
-		}
-
-		// 自动摘要
-		//System.out.println(param.get("digest"));
-		if (param.get("digest") == null || "".equals(param.get("digest"))) {
-			log.set("digest", log.get("content"));
-		}
-		
-		setSessionAttr("log", log);
-		Object map = new HashMap<String,Object>();
-		((Map) map).put("add", Boolean.valueOf(true));
-		renderJson(map);
-	}
-
 	public void update() {
 		Integer logId = null;
 		logId = Integer.parseInt(getPara("logId"));
 		// compare tag
 		String oldTagStr = Log.dao.findById(logId).get("keywords");
 		Tag.dao.update(getPara("keywords"), oldTagStr);
-		Log log = Log.dao.findById(logId);
-		Map<String, String[]> param = getRequest().getParameterMap();
-		for (Map.Entry tmap : param.entrySet()) {
-			log.set((String) tmap.getKey(), ((String[]) tmap.getValue())[0]);
-		}
-		
-		if (param.get("canComment") != null) {
-			log.set("canComment", Boolean.valueOf(true));
-		} else {
-			log.set("canComment", Boolean.valueOf(false));
-		}
-		if (param.get("recommended") != null) {
-			log.set("recommended", Boolean.valueOf(true));
-		} else {
-			log.set("recommended", Boolean.valueOf(false));
-		}
-		
-		if (log.get("digest") == null || "".equals(log.get("digest"))) {
-			log.set("digest",
-					ParseTools.autoDigest(log.get("content").toString(), 200));
-		} else {
-			log.set("digest", getPara("digest"));
-		}
-		log.update();
+		getLog().update();
 		renderJson("OK");
 	}
 
@@ -105,40 +39,11 @@ public class ManageLogControl extends ManageControl {
 		Log log=null;
 		if(getPara("logId")!=null){
 			log=new Log().getLogByLogIdA(getPara("logId"));
-			logId=log.getInt("logId");
 		}
 		else{
-			Map<String, String[]> param = getRequest().getParameterMap();
-			log= new Log();
-			for (Map.Entry tmap : param.entrySet()) {
-				log.set((String) tmap.getKey(), ((String[]) tmap.getValue())[0]);
-			}
-			logId = log.getMaxRecord() + 1;
-			((Log) log.set("userId",
-					((User) getSessionAttr("user")).getInt("userId"))).set(
-					"releaseTime", new Date());
-			log.set("logId", Integer.valueOf(logId));
-
-			if (param.get("alias") == null) {
-				log.set("alias", Integer.valueOf(logId));
-			}
-			if (param.get("canComment") != null) {
-				log.set("canComment", Boolean.valueOf(true));
-			} else {
-				log.set("canComment", Boolean.valueOf(false));
-			}
-			if (param.get("recommended") != null) {
-				log.set("recommended", Boolean.valueOf(true));
-			} else {
-				log.set("recommended", Boolean.valueOf(false));
-			}
-
-			// 自动摘要
-			if (log.get("digest") == null || "".equals(log.get("digest"))) {
-				log.set("digest",
-						ParseTools.autoDigest(log.get("content").toString(), 200));
-			}
+			log= getLog();
 		}
+		logId=log.getInt("logId");
 		log.put("lastLog", Log.dao.getLastLog(logId));
 		log.put("nextLog", Log.dao.getNextLog(logId));
 		setAttr("log", log);
@@ -166,48 +71,18 @@ public class ManageLogControl extends ManageControl {
 	}
 
 	public void add() {
-		Map<String, String[]> param = getRequest().getParameterMap();
-		Log log = new Log();
-		for (Entry<String,String[]> tmap : param.entrySet()) {
-			if(tmap.getValue().length>0){
-				log.set((String) tmap.getKey(), ((String[]) tmap.getValue())[0]);
-			}
+		Log log=getLog();
+		boolean result=false;
+		if("session".equals(getPara("scope"))){
+			setSessionAttr("log", log);
+			result=true;
 		}
-		int logId = log.getMaxRecord() + 1;
-		((Log) log.set("userId",
-				((User) getSessionAttr("user")).getInt("userId"))).set(
-				"releaseTime", new Date());
-		log.set("logId", Integer.valueOf(logId));
-		log.set("private", false);
-		log.set("rubbish", false);
-		if (param.get("alias") == null) {
-			log.set("alias", Integer.valueOf(logId));
+		else{
+			Tag.dao.insertTag(getPara("keywords"));
+			result=log.save();
 		}
-		if (param.get("canComment") != null) {
-			log.set("canComment", Boolean.valueOf(true));
-		} else {
-			log.set("canComment", Boolean.valueOf(false));
-		}
-		if (param.get("recommended") != null) {
-			log.set("recommended", Boolean.valueOf(true));
-		} 
-		if (param.get("private") != null) {
-			log.set("private", true);
-		} 
-		if (param.get("rubbish") != null) {
-			log.set("rubbish", true);
-		} 
-		else {
-			log.set("recommended", Boolean.valueOf(false));
-		}
-		// 自动摘要
-		if (log.get("digest") == null || "".equals(log.get("digest"))) {
-			log.set("digest", ParseTools.autoDigest(log.get("content").toString(), 200));
-		}
-		//
-		Tag.dao.insertTag(getPara("keywords"));
 		Object map = new HashMap<String,Object>();
-		((Map) map).put("add", Boolean.valueOf(log.save()));
+		((Map) map).put("add",result);
 		renderJson(map);
 	}
 
@@ -249,5 +124,49 @@ public class ManageLogControl extends ManageControl {
 	public void queryAll() {
 		renderJson(Log.dao.queryAll(getParaToInt("page").intValue(),
 				getParaToInt("rows").intValue()));
+	}
+	
+	private Log getLog(){
+		Map<String, String[]> param = getRequest().getParameterMap();
+		Log log = new Log();
+		for (Entry<String,String[]> tmap : param.entrySet()) {
+			if(tmap.getValue().length>0){
+				if(!"scope".equals(tmap.getKey())){
+					log.set((String) tmap.getKey(), ((String[]) tmap.getValue())[0]);
+				}
+			}
+		}
+		int logId = log.getMaxRecord() + 1;
+		((Log) log.set("userId",
+				((User) getSessionAttr("user")).getInt("userId"))).set(
+				"releaseTime", new Date());
+		log.set("logId", Integer.valueOf(logId));
+		log.set("private", false);
+		log.set("rubbish", false);
+		if (param.get("alias") == null) {
+			log.set("alias", Integer.valueOf(logId));
+		}
+		if (param.get("canComment") != null) {
+			log.set("canComment", Boolean.valueOf(true));
+		} else {
+			log.set("canComment", Boolean.valueOf(false));
+		}
+		if (param.get("recommended") != null) {
+			log.set("recommended", Boolean.valueOf(true));
+		} 
+		if (param.get("private") != null) {
+			log.set("private", true);
+		} 
+		if (param.get("rubbish") != null) {
+			log.set("rubbish", true);
+		} 
+		else {
+			log.set("recommended", Boolean.valueOf(false));
+		}
+		// 自动摘要
+		if (log.get("digest") == null || "".equals(log.get("digest"))) {
+			log.set("digest", ParseTools.autoDigest(log.get("content").toString(), 200));
+		}
+		return log;
 	}
 }
