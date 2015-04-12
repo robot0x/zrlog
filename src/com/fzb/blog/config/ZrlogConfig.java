@@ -2,7 +2,6 @@ package com.fzb.blog.config;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -43,9 +42,9 @@ import flexjson.JSONDeserializer;
 /**
  * @author zhengchangchun JFinal 一些参数的配置
  */
-public class JFanilConfig extends JFinalConfig {
+public class ZrlogConfig extends JFinalConfig {
 	
-	private static Logger log=Logger.getLogger(JFanilConfig.class);
+	private static Logger log=Logger.getLogger(ZrlogConfig.class);
 	
 	public void configConstant(Constants con) {
 		con.setDevMode(true);
