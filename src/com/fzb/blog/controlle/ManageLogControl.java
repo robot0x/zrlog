@@ -62,9 +62,11 @@ public class ManageLogControl extends ManageControl {
 	}
 
 	public void delete() {
-		Map<String, Object> log = Log.dao.getLogByLogId(getParaToInt("id")
+		Log log = Log.dao.getLogByLogIdA(getParaToInt("id")
 				.intValue());
-		Tag.dao.deleteTag(log.get("keywords").toString());
+		if(log!=null && log.get("keywords")!=null){
+			Tag.dao.deleteTag(log.get("keywords").toString());
+		}
 		Log.dao.deleteById(getParaToInt("id"));
 
 		renderJson("OK");
