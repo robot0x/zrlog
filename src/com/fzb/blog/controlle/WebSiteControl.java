@@ -10,7 +10,7 @@ public class WebSiteControl extends ManageControl
 	public void update(){
 		Map<String,String[]> tparamMap=getParaMap();
 		for (Entry<String, String[]>  param: tparamMap.entrySet()) {
-			new WebSite().updateByKV(param.getKey(),param.getValue()[0]);
+			new WebSite().updateByKV(param.getKey(),param.getValue()[0],!"-1".equals(param.getValue()[0]));
 		}
 		if(getPara("resultType")!=null && "html".equals(getPara("resultType"))){
 			setAttr("message", "变更完成");

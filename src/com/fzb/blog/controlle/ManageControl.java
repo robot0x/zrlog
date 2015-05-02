@@ -22,10 +22,12 @@ public abstract class ManageControl extends BaseControl {
 			} else {
 				System.out.println("unSupport ");
 			}
+			Object map = new HashMap<String,Object>();
+			((Map) map).put(getPara("oper"),true);
+			renderJson(map);
 
 		}
-		renderJson("OK");
-
+		
 		// 清空数据缓存
 		BaseControl.refreshCache();
 	}

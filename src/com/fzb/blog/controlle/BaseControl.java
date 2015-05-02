@@ -46,7 +46,7 @@ public class BaseControl extends Controller implements Constant {
 			init.put("archives", Log.dao.getArchives());
 			init.put("tags", Tag.dao.queryAll());
 			init.put("hotLog", Log.dao.getLogsByPage(1, 6));
-			init.put("version", "1.2.2");
+			init.put("version", "1.3");
 			List<Type> types = Type.dao.queryAll();
 			Map<Map<String, Object>, List<Log>> indexHotLog = new LinkedHashMap<Map<String, Object>, List<Log>>();
 			for (Type type : types) {

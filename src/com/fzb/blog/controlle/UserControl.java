@@ -1,5 +1,12 @@
 package com.fzb.blog.controlle;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.http.Cookie;
+import javax.swing.text.rtf.RTFEditorKit;
+
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;
 import com.fzb.blog.model.Log;
@@ -18,6 +25,15 @@ public class UserControl extends ManageControl {
 
 	public void index() {
 		if (getSessionAttr("user") != null) {
+			getSession().setAttribute("comments", Comment.dao.noRead(1, 5));
+			getSession().setAttribute("commCount", Comment.dao.getCommentCount());
+			getSession().setAttribute("toDayCommCount", Comment.dao.getToDayCommentCount());
+			getSession().setAttribute("clickCount", Log.dao.getAllClick());
+			if (getPara("redirectFrom") != null
+					&& !"".equals(getPara("redirectFrom"))) {
+				redirect(getPara("redirectFrom"));
+				return;
+			}
 			if (getPara(0) == null) {
 				render("/admin/index.jsp");
 			} else {
@@ -30,32 +46,69 @@ public class UserControl extends ManageControl {
 	}
 
 	public void logout() {
+		Cookie cookies[]=getRequest().getCookies();
+		for (Cookie cookie : cookies) {
+			if("zId".equals(cookie.getName())){
+				Map<String,User> userMap=(Map<String, User>) getSession().getServletContext().getAttribute("userMap");
+				userMap.remove(cookie.getValue());
+				cookie.setMaxAge(0);
+				getResponse().addCookie(cookie);
+			}
+		}
 		getSession().invalidate();
 		render("/admin/login.jsp");
 	}
 
+	private String getBaseMs(){
+		return Md5Util.MD5(getRequest().getRemoteHost()+","+getRequest().getHeader("User-Agent")).substring(2, 10);
+	}
+	
 	public void login() {
-		if(getPara("userName")!=null && getPara("password")!=null){
+		boolean login=false;
+		if(getCookie("zId")!=null){
+			Map<String,User> userMap=(Map<String, User>)getSession().getServletContext().getAttribute("userMap");
+			if(userMap!=null){
+				String zId=getBaseMs()+getCookie("zId");
+				User user=userMap.get(zId);
+				if(user!=null){
+					user = User.dao.login(user.getStr("userName"),user.getStr("password"));
+					if(user!=null){
+						getSession().setAttribute("user", user);
+						login=true;
+					}
+				}
+			}
+		}
+		if(!login && getPara("userName")!=null && getPara("password")!=null){
 			User user = User.dao.login(getPara("userName"),
 					Md5Util.MD5(getPara("password")));
 			if (user != null) {
 				getSession().setAttribute("user", user);
-				getSession().setAttribute("comments", Comment.dao.noRead(1, 5));
-				getSession().setAttribute("commCount", Comment.dao.getCommentCount());
-				getSession().setAttribute("toDayCommCount", Comment.dao.getToDayCommentCount());
-				getSession().setAttribute("clickCount", Log.dao.getAllClick());
-				if (getPara("redirectFrom") != null
-						&& !"".equals(getPara("redirectFrom"))) {
-					redirect(getPara("redirectFrom"));
-					return;
+				if("on".equals(getPara("rememberMe"))){
+					Map<String,User> userMap=(Map<String, User>)getSession().getServletContext().getAttribute("userMap");
+					if(userMap==null){
+						userMap=new HashMap<String, User>();
+						getSession().getServletContext().setAttribute("userMap", userMap);
+					}
+					String zid=UUID.randomUUID().toString();
+					Cookie cookie=new Cookie("zId",zid);
+					cookie.setMaxAge(60*60*24*30);
+					//cookie.setHttpOnly(true);
+					String host=getRequest().getHeader("Host");
+					int idx=host.indexOf(":");
+					if(idx!=-1){
+						host=host.substring(0,idx);
+					}
+					cookie.setDomain(host);
+					cookie.setPath("/");
+					getResponse().addCookie(cookie);
+					userMap.put(getBaseMs()+zid, user);
 				}
 			} else {
 				setAttr("errorMsg", "用户名或密码错误");
 			}
 		}
 		index();
-		
-		
 	}
 
 	@Override
@@ -65,7 +118,7 @@ public class UserControl extends ManageControl {
 
 	@Override
 	public void update() {
-		Db.update("update user set header=? where userName=?",getPara("header"),getPara("userName"));
+		Db.update("update user set header=?,email=? where userName=?",getPara("header"),getPara("email"),getPara("userName"));
 		setAttr("message", "个人信息变更成功");
 	}
 
@@ -79,6 +132,7 @@ public class UserControl extends ManageControl {
 			if(Md5Util.MD5(oldPassword).equals(dbPassword)){
 				User.dao.updatePassword(userName, Md5Util.MD5(getPara("newPassword")));
 				setAttr("message", CHANGEPWDSUCC);
+				getSession().invalidate();
 			}
 			else{
 				setAttr("message", OLDPWDERROR);

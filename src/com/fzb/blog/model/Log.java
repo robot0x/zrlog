@@ -88,8 +88,11 @@ public class Log extends Model<Log> implements Serializable {
 	}
 
 	public int getMaxRecord() {
-		return ((Log) findFirst("select max(logId) max from log "))
-				.getInt("max").intValue();
+		Log log=(Log) findFirst("select max(logId) max from log ");
+		if(log.getInt("max")!=null){
+			return log.getInt("max").intValue();
+		}
+		return 0;
 	}
 
 	public Map<String, Object> getLogsByPage(int page, int pageSize) {

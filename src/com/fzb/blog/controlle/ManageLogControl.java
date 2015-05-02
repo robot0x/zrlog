@@ -31,7 +31,9 @@ public class ManageLogControl extends ManageControl {
 		String oldTagStr = Log.dao.findById(logId).get("keywords");
 		Tag.dao.update(getPara("keywords"), oldTagStr);
 		getLog().update();
-		renderJson("OK");
+		Object map = new HashMap<String,Object>();
+		((Map) map).put("update",true);
+		renderJson(map);
 	}
 
 	public void preview() {
@@ -69,7 +71,9 @@ public class ManageLogControl extends ManageControl {
 		}
 		Log.dao.deleteById(getParaToInt("id"));
 
-		renderJson("OK");
+		Object map = new HashMap<String,Object>();
+		((Map) map).put("delete",true);
+		renderJson(map);
 	}
 
 	public void add() {

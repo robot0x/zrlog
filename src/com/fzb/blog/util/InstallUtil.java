@@ -1,4 +1,4 @@
-package com.fzb.common.util;
+package com.fzb.blog.util;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +13,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 
+import javax.sql.CommonDataSource;
+
+import com.fzb.blog.config.UserRoutes;
+import com.fzb.blog.controlle.APIControl;
+import com.fzb.blog.controlle.InstallControl;
+import com.fzb.blog.controlle.QueryLogControl;
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;
 import com.fzb.blog.model.Log;
@@ -23,11 +30,17 @@ import com.fzb.blog.model.Tag;
 import com.fzb.blog.model.Type;
 import com.fzb.blog.model.User;
 import com.fzb.blog.model.WebSite;
+import com.fzb.common.util.IOUtil;
+import com.fzb.common.util.Md5Util;
 import com.jfinal.config.Plugins;
+import com.jfinal.config.Routes;
 import com.jfinal.core.JFinal;
 import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
+import com.jfinal.plugin.activerecord.Config;
+import com.jfinal.plugin.activerecord.DbKit;
 import com.jfinal.plugin.c3p0.C3p0Plugin;
 import com.jfinal.plugin.ehcache.EhCachePlugin;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 public class InstallUtil {
 
@@ -35,6 +48,7 @@ public class InstallUtil {
 	private Map<String,String> dbConn;
 	private Map<String,String> configMsg;
 	private Connection connect;
+	private C3p0Plugin c3p0Plugin;
 	
 	public InstallUtil(String basePath){
 		this.basePath=basePath;
@@ -43,7 +57,7 @@ public class InstallUtil {
 		this.basePath=basePath;
 		this.dbConn=dbConn;
 		this.configMsg=configMsg;
-		C3p0Plugin c3p0Plugin = new C3p0Plugin(dbConn.get("jdbcUrl"), dbConn.get("user"), dbConn.get("password"),dbConn.get("driverClass"));
+		c3p0Plugin = new C3p0Plugin(dbConn.get("jdbcUrl"), dbConn.get("user"), dbConn.get("password"),dbConn.get("driverClass"));
 		try {
 			c3p0Plugin.start();
 			this.connect=c3p0Plugin.getDataSource().getConnection();
@@ -126,7 +140,6 @@ public class InstallUtil {
 				if(!"".equals(sqlSt))
 				{
 					st=connect.createStatement();
-					System.out.println(sqlSt.length());
 					st.execute(sqlSt);
 					cnt++;
 				}
@@ -169,24 +182,22 @@ public class InstallUtil {
 			ps.executeUpdate();
 			
 			
-			String inserLogType="INSERT INTO `type`(`typeId`, `typeName`, `remark`, `alias`) VALUES (1,'记录','哈哈','study')";
+			String inserLogType="INSERT INTO `type`(`typeId`, `typeName`, `remark`, `alias`) VALUES (1,'记录','','notes')";
 			ps.execute(inserLogType);
-			String inserLog="INSERT INTO `log`(`logId`,`canComment`,`keywords`,`alias`,`typeId`,`userId`,`title`,`content`,`digest`,`releaseTime`) VALUES (1,?,'记录','first',1,1,'记录学习记录','每天进步一点','每天进步一点',?)";
+			String inserLog="INSERT INTO `log`(`logId`,`canComment`,`keywords`,`alias`,`typeId`,`userId`,`title`,`content`,`digest`,`releaseTime`,`rubbish`,`private`) VALUES (1,?,'记录','first',1,1,'记录学习记录','每天进步一点','每天进步一点',?,?,?)";
 			ps=connect.prepareStatement(inserLog);
 			ps.setBoolean(1, true);
 			ps.setObject(2, new java.util.Date());
+			ps.setBoolean(3, false);
+			ps.setBoolean(4, false);
 			ps.executeUpdate();
 			
 			String inserTag="INSERT INTO `tag`(`tagId`,`text`,`count`) VALUES (1,'记录',1)";
 			ps=connect.prepareStatement(inserTag);
 			ps.executeUpdate();
 			//TODO 重新注册C3P0Plugin 
-			System.out.println("SSSSSSSSSSSS");
+			System.out.println("reRegister c3p0");
 			Plugins plugins=(Plugins)JFinal.me().getServletContext().getAttribute("plugins");
-			C3p0Plugin c3p0Plugin = new C3p0Plugin(configMsg.get("jdbcUrl"),
-					configMsg.get("user"), configMsg.get("password"));
-			plugins.add(c3p0Plugin);
-			
 			ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
 			arp.addMapping("user", "userId", User.class);
 			arp.addMapping("log", "logId", Log.class);
@@ -197,6 +208,7 @@ public class InstallUtil {
 			arp.addMapping("website", "siteId", WebSite.class);
 			arp.addMapping("plugin", "pluginId", Plugin.class);
 			arp.addMapping("tag", "tagId", Tag.class);
+			arp.start();
 			// 添加表与实体的映射关系
 			plugins.add(arp);
 			return true;

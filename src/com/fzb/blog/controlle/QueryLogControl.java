@@ -71,20 +71,24 @@ public class QueryLogControl extends BaseControl {
 	
 	public void addComment(){
 		//FIXME　如果过滤垃圾信息
-		new Comment().set("userHome", getPara("userHome")).set("userMail", getPara("userMail"))
-					.set("userIp", getRequest().getRemoteAddr()).set("userName", getPara("userName"))
-					.set("logId", getPara("logId")).set("userComment", getPara("userComment")).set("commTime", new Date()).set("hide", 1).save();
-		detail();
+		if(getPara("userComment")!=null){
+			new Comment().set("userHome", getPara("userHome")).set("userMail", getPara("userMail"))
+			.set("userIp", getRequest().getRemoteAddr()).set("userName", getPara("userName"))
+			.set("logId", getPara("logId")).set("userComment", getPara("userComment")).set("commTime", new Date()).set("hide", 1).save();
+		}
+		detail(getPara("logId"));
 	}
 	
 	public void detail() {
+		detail(getPara());
+	}
+	private void detail(Object id){
 		Map<String,Object> log = new HashMap<String,Object>();
-		Object tlogId = getPara();
-		Map<String, Object> data=Log.dao.getLogByLogId(tlogId);
+		Map<String, Object> data=Log.dao.getLogByLogId(id);
 		if(data!=null){
 			Integer logId=(Integer) data.get("logId");
-			log.putAll(Log.dao.getLogByLogId(tlogId));
-			Log.dao.clickChange(logId);
+			log.putAll(Log.dao.getLogByLogId(logId));
+			Log.dao.clickChange((Integer) logId);
 			log.put("lastLog", Log.dao.getLastLog(logId.intValue()));
 			log.put("nextLog", Log.dao.getNextLog(logId.intValue()));
 			log.put("comments", Comment.dao.getCommentsByLogId(logId));

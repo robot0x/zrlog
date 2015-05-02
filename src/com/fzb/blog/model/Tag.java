@@ -111,7 +111,6 @@ public class Tag extends Model<Tag> {
 			new Tag().set("tagId", count++).set("text", tag.getKey())
 					.set("count", tag.getValue()).save();
 		}
-		System.out.println(countMap);
 	}
 
 	public static void main(String[] args) {

@@ -9,7 +9,7 @@ import net.sf.ehcache.concurrent.ConcurrencyUtil;
 
 import com.fzb.blog.controlle.BaseControl;
 import com.fzb.blog.controlle.QueryLogControl;
-import com.fzb.common.util.InstallUtil;
+import com.fzb.blog.util.InstallUtil;
 import com.jfinal.aop.PrototypeInterceptor;
 import com.jfinal.core.ActionInvocation;
 import com.jfinal.kit.PathKit;

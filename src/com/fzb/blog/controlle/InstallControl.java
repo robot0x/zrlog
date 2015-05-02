@@ -3,7 +3,7 @@ package com.fzb.blog.controlle;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fzb.common.util.InstallUtil;
+import com.fzb.blog.util.InstallUtil;
 import com.jfinal.config.Constants;
 import com.jfinal.config.JFinalConfig;
 import com.jfinal.config.Plugins;

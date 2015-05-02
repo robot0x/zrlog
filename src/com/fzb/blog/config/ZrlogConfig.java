@@ -18,9 +18,9 @@ import com.fzb.blog.model.Tag;
 import com.fzb.blog.model.Type;
 import com.fzb.blog.model.User;
 import com.fzb.blog.model.WebSite;
+import com.fzb.blog.util.InstallUtil;
 import com.fzb.blog.util.plugin.PluginsUtil;
 import com.fzb.blog.util.plugin.api.IZrlogPlugin;
-import com.fzb.common.util.InstallUtil;
 import com.jfinal.config.Constants;
 import com.jfinal.config.Handlers;
 import com.jfinal.config.Interceptors;
@@ -47,7 +47,7 @@ public class ZrlogConfig extends JFinalConfig {
 	private static Logger log=Logger.getLogger(ZrlogConfig.class);
 	
 	public void configConstant(Constants con) {
-		con.setDevMode(true);
+		//con.setDevMode(true);
 		con.setViewType(ViewType.JSP);
 		con.setEncoding("utf-8");
 		con.setI18n("i18n");
@@ -73,7 +73,7 @@ public class ZrlogConfig extends JFinalConfig {
 			plugins.add(new EhCachePlugin());
 			if (!new InstallUtil(PathKit.getWebRootPath() + "/WEB-INF")
 					.checkInstall()) {
-				System.out.println("GGGGGGGGG");
+				log.warn("Not found lock file(/WEB-INF/install.lock), Please visit the http://ip:port"+JFinal.me().getContextPath()+"/install installation");
 				return;
 			}
 			// 启动时候进行数据库链接,
@@ -120,7 +120,7 @@ public class ZrlogConfig extends JFinalConfig {
 				
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			//log.warn("Not found lock file(/WEB-INF/install.lock), Please visit the http://ip:port/"+JFinal.me().getContextPath()+"/install installation");
 		}
 		// duqu 
 		JFinal.me().getServletContext().setAttribute("system", System.getProperties());
