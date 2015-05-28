@@ -55,7 +55,7 @@ public class LoadJarUtil {
 				try {
 					ClassLoader.getSystemClassLoader().loadClass(string);
 				} catch (ClassNotFoundException e) {
-					//System.out.println(e.getMessage());
+					e.printStackTrace();
 				}
 
 			}

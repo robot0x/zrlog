@@ -9,6 +9,7 @@ import java.util.Map;
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Log;
 import com.fzb.blog.model.Type;
+import com.fzb.blog.util.WebTools;
 import com.fzb.common.util.ParseTools;
 
 public class QueryLogControl extends BaseControl {
@@ -70,10 +71,10 @@ public class QueryLogControl extends BaseControl {
 
 	
 	public void addComment(){
-		//FIXME　如果过滤垃圾信息
+		//FIXME　如何过滤垃圾信息
 		if(getPara("userComment")!=null){
 			new Comment().set("userHome", getPara("userHome")).set("userMail", getPara("userMail"))
-			.set("userIp", getRequest().getRemoteAddr()).set("userName", getPara("userName"))
+			.set("userIp", WebTools.getRealIp(getRequest())).set("userName", getPara("userName"))
 			.set("logId", getPara("logId")).set("userComment", getPara("userComment")).set("commTime", new Date()).set("hide", 1).save();
 		}
 		detail(getPara("logId"));

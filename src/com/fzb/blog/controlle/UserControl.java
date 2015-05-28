@@ -11,6 +11,7 @@ import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;
 import com.fzb.blog.model.Log;
 import com.fzb.blog.model.User;
+import com.fzb.blog.util.WebTools;
 import com.fzb.common.util.Md5Util;
 import com.jfinal.plugin.activerecord.Db;
 
@@ -60,7 +61,7 @@ public class UserControl extends ManageControl {
 	}
 
 	private String getBaseMs(){
-		return Md5Util.MD5(getRequest().getRemoteHost()+","+getRequest().getHeader("User-Agent")).substring(2, 10);
+		return Md5Util.MD5(WebTools.getRealIp(getRequest())+","+getRequest().getHeader("User-Agent")).substring(2, 10);
 	}
 	
 	public void login() {
