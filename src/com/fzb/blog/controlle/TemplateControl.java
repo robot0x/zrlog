@@ -42,6 +42,14 @@ public class TemplateControl extends ManageControl {
 		}
 		renderJson(map);
 	}
+	
+	public void saveFile(){
+		String file=getRequest().getRealPath("/")+getPara("file");
+		IOUtil.writeBytesToFile(getPara("content").getBytes(), new File(file));
+		Map<String,Object> map=new HashMap<String,Object>();
+		map.put("status", 200);
+		renderJson(map);
+	}
 
 	public void queryAll() {
 		String webPath = PathKit.getWebRootPath();

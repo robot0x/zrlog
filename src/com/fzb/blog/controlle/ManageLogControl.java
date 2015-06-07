@@ -33,7 +33,7 @@ public class ManageLogControl extends ManageControl {
 		Object map = new HashMap<String, Object>();
 		((Map) map).put("update", true);
 		renderJson(map);
-		return;
+		getSession().removeAttribute("log");
 	}
 
 	public void preview() {
@@ -83,6 +83,7 @@ public class ManageLogControl extends ManageControl {
 			log.set("rubbish", true);
 			getSession().setAttribute("log", log);
 		} else {
+			getSession().removeAttribute("log");
 			Tag.dao.insertTag(getPara("keywords"));
 		}
 		Log tlog = Log.dao.findById(log.getInt("logId"));
@@ -94,6 +95,7 @@ public class ManageLogControl extends ManageControl {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("add", result);
 		map.put("logId", log.get("logId"));
+		map.put("alias", log.get("alias"));
 		renderJson(map);
 	}
 
@@ -153,7 +155,7 @@ public class ManageLogControl extends ManageControl {
 					continue;
 				} else if (!"scope".equals(tmap.getKey())) {
 					log.set((String) tmap.getKey(),
-							((String[]) tmap.getValue())[0]);
+							(((String[]) tmap.getValue())[0]));
 				}
 			}
 		}
@@ -161,15 +163,17 @@ public class ManageLogControl extends ManageControl {
 		if (logId == null) {
 			logId = log.getMaxRecord() + 1;
 			log.set("logId", Integer.valueOf(logId));
+			log.set("releaseTime", new Date());
+			if (log.get("alias") == null || "".equals((log.get("alias")+"").trim())) {
+				log.set("alias", Integer.valueOf(logId));
+			}
 		}
-		((Log) log.set("userId",
-				((User) getSessionAttr("user")).getInt("userId"))).set(
-				"releaseTime", new Date());
+		else{
+			log.set("alias", (log.get("alias")+"").trim().replace(" ", "-"));
+		}
+		log.set("userId", ((User) getSessionAttr("user")).getInt("userId"));
 		log.set("private", false);
 		log.set("rubbish", false);
-		if (param.get("alias") == null) {
-			log.set("alias", Integer.valueOf(logId));
-		}
 		if (param.get("canComment") != null) {
 			log.set("canComment", Boolean.valueOf(true));
 		} else {
@@ -177,14 +181,14 @@ public class ManageLogControl extends ManageControl {
 		}
 		if (param.get("recommended") != null) {
 			log.set("recommended", Boolean.valueOf(true));
+		} else {
+			log.set("recommended", Boolean.valueOf(false));
 		}
 		if (param.get("private") != null) {
 			log.set("private", true);
 		}
 		if (param.get("rubbish") != null) {
 			log.set("rubbish", true);
-		} else {
-			log.set("recommended", Boolean.valueOf(false));
 		}
 		// 自动摘要
 		if (log.get("digest") == null || "".equals(log.get("digest"))) {

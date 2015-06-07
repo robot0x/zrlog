@@ -51,9 +51,11 @@ public class UserControl extends ManageControl {
 		for (Cookie cookie : cookies) {
 			if("zId".equals(cookie.getName())){
 				Map<String,User> userMap=(Map<String, User>) getSession().getServletContext().getAttribute("userMap");
-				userMap.remove(cookie.getValue());
-				cookie.setMaxAge(0);
-				getResponse().addCookie(cookie);
+				if(userMap!=null){
+					userMap.remove(cookie.getValue());
+					cookie.setMaxAge(0);
+					getResponse().addCookie(cookie);
+				}
 			}
 		}
 		getSession().invalidate();

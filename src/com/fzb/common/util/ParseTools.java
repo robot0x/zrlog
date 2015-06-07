@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.fzb.blog.util.plugin.dev.ThemeUtil;
+import com.fzb.blog.dev.ThemeUtil;
 
 public class ParseTools {
 	public static int getFirstRecord(int page, int pageSize) {
