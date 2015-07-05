@@ -15,12 +15,15 @@ public class User extends Model<User> implements Serializable {
 				"select * from user where username=? and password=?",
 				new Object[] { userName, password });
 	}
-	public String getPasswordByName(String userName){
-		return (String) findFirst("select password from user where username=?",userName).get("password");
+
+	public String getPasswordByName(String userName) {
+		return (String) findFirst("select password from user where username=?",
+				userName).get("password");
 	}
-	
-	public boolean updatePassword(String userName,String password){
-		return Db.update("update user set password=? where userName=?",password,userName)>0;
+
+	public boolean updatePassword(String userName, String password) {
+		return Db.update("update user set password=? where userName=?",
+				password, userName) > 0;
 	}
 
 }

@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 public class WebTools {
 
 	public static String getRealIp(HttpServletRequest request) {
-		String ip = request.getHeader("x-forwarded-for");
+		String ip = request.getHeader("X-forwarded-for");
 		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
 			ip = request.getHeader("X-Real-IP");
 		}

@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fzb.blog.model.Plugin;
 import com.fzb.blog.util.LoadJarUtil;
 import com.fzb.blog.util.plugin.PluginsUtil;
@@ -24,14 +27,18 @@ import flexjson.JSONDeserializer;
 import flexjson.JSONSerializer;
 
 public class PluginControl extends ManageControl {
+
+	private static final Logger log = LoggerFactory
+			.getLogger(QueryLogControl.class);
+
 	public void delete() {
 		Plugin.dao.deleteById(getPara(0));
 	}
-	
-	public void index(){
+
+	public void index() {
 		queryAll();
 	}
-	
+
 	public void queryAll() {
 
 		String webPath = PathKit.getWebRootPath();
@@ -39,15 +46,12 @@ public class PluginControl extends ManageControl {
 				.listFiles();
 		List<Map<String, Object>> plugin = new ArrayList<Map<String, Object>>();
 		for (int i = 0; i < templatesFile.length; i++) {
-
-			/*if (templatesFile[i].isFile())
-				//continue;
-*/			Map<String, Object> map = new HashMap<String, Object>();
-			if(templatesFile[i].getName().indexOf(".")!=-1){
-				map.put("plugin",templatesFile[i].getName().toString().substring(0,templatesFile[i].getName().indexOf(".")));
-			}
-			else{
-				map.put("plugin",templatesFile[i].getName().toString());
+			Map<String, Object> map = new HashMap<String, Object>();
+			if (templatesFile[i].getName().indexOf(".") != -1) {
+				map.put("plugin", templatesFile[i].getName().toString()
+						.substring(0, templatesFile[i].getName().indexOf(".")));
+			} else {
+				map.put("plugin", templatesFile[i].getName().toString());
 			}
 			map.put("author", "xiaochun");
 			map.put("name", "模板");
@@ -61,163 +65,177 @@ public class PluginControl extends ManageControl {
 
 	@Override
 	public void add() {
-		
+
 	}
 
 	@Override
 	public void update() {
-		
+
 	}
-	
-	public void start(){
-		if(isNotNullOrNotEmptyStr(getPara("name"))){
-			String pName=getPara("name");
-			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
-			if(zPlugin!=null){
+
+	public void start() {
+		if (isNotNullOrNotEmptyStr(getPara("name"))) {
+			String pName = getPara("name");
+			IZrlogPlugin zPlugin = PluginsUtil.getPlugin(pName);
+			if (zPlugin != null) {
 				zPlugin.stop();
 			}
-			try{
-				zPlugin = (IZrlogPlugin) Class.forName((String) getKey(pName, "classLoader")).newInstance();
+			try {
+				zPlugin = (IZrlogPlugin) Class.forName(
+						(String) getKey(pName, "classLoader")).newInstance();
 				PluginsUtil.addPlugin(pName, zPlugin);
 				setAttr("message", "插件开始运行了");
 				new Plugin().updatePluginStatus(pName, 2);
-			}
-			catch(Exception e){
-				e.printStackTrace();
+			} catch (Exception e) {
+				log.error("start plugin execption ", e);
 				setAttr("message", "运行插件遇到了一些问题");
 			}
 		}
 	}
-	
-	public void stop(){
-		if(isNotNullOrNotEmptyStr(getPara("name"))){
-			String pName=getPara("name");
-			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
-			if(zPlugin!=null){
-				//TODO 为撒打包为Jar后无法移除了呢。
-				//PluginsUtil.romvePlugin(pName);
+
+	public void stop() {
+		if (isNotNullOrNotEmptyStr(getPara("name"))) {
+			String pName = getPara("name");
+			IZrlogPlugin zPlugin = PluginsUtil.getPlugin(pName);
+			if (zPlugin != null) {
+				// TODO 为撒打包为Jar后无法移除了呢。
+				// PluginsUtil.romvePlugin(pName);
 				setAttr("message", "停用插件");
 				PluginsUtil.getPluginsMap().remove(pName);
 				new Plugin().updatePluginStatus(pName, 3);
-			}
-			else{
+			} else {
 				setAttr("message", "不存在插件,或者插件没有运行");
 			}
 		}
 	}
-	
-	public void unstall(){
-		if(isNotNullOrNotEmptyStr(getPara("name"))){
-			String pName=getPara("name");
-			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
-			if(zPlugin!=null){
+
+	public void unstall() {
+		if (isNotNullOrNotEmptyStr(getPara("name"))) {
+			String pName = getPara("name");
+			IZrlogPlugin zPlugin = PluginsUtil.getPlugin(pName);
+			if (zPlugin != null) {
 				PluginsUtil.getPluginsMap().remove(pName);
 				setAttr("message", "卸载插件");
 				zPlugin.unstall();
-				//TODO 删除解压的文件和数据库记录
-				//new Plugin().updatePluginStatus(pName, 2);
-			}
-			else{
+				// TODO 删除解压的文件和数据库记录
+				// new Plugin().updatePluginStatus(pName, 2);
+			} else {
 				setAttr("message", "不存在插件,或者插件没有运行");
 			}
 		}
 	}
-	
-	public void install(){
-		if(isNotNullOrNotEmptyStr(getPara("name"))){
-			String pName=getPara("name");
-			IZrlogPlugin zPlugin=PluginsUtil.getPlugin(pName);
-			if(zPlugin==null){
-				//TODO 
-				Map<String,Object> paramMap=new HashMap<String, Object>();
-				Map<String,String[]> tparamMap=getParaMap();
-				for (Entry<String, String[]>  param: tparamMap.entrySet()) {
+
+	public void install() {
+		if (isNotNullOrNotEmptyStr(getPara("name"))) {
+			String pName = getPara("name");
+			IZrlogPlugin zPlugin = PluginsUtil.getPlugin(pName);
+			if (zPlugin == null) {
+				// TODO
+				Map<String, Object> paramMap = new HashMap<String, Object>();
+				Map<String, String[]> tparamMap = getParaMap();
+				for (Entry<String, String[]> param : tparamMap.entrySet()) {
 					paramMap.put(param.getKey(), param.getValue()[0]);
 				}
 				paramMap.remove("name");
 				Object tPlugin;
 				try {
-					Map<String,Object> map=getPluginMsgByZipFileName(pName);
-					if(isNotNullOrNotEmptyStr(getPara("step"))){
+					Map<String, Object> map = getPluginMsgByZipFileName(pName);
+					if (isNotNullOrNotEmptyStr(getPara("step"))) {
 						setAttr("mTitle", "插件设置");
-						setAttr("sTitle", map.get("desc")+" 设置");
-						getRequest().getRequestDispatcher("/admin/page.jsp?include=plugins/"+pName+"/html/"+map.get("page")).forward(getRequest(), getResponse());
+						setAttr("sTitle", map.get("desc") + " 设置");
+						getRequest().getRequestDispatcher(
+								"/admin/page.jsp?include=plugins/" + pName
+										+ "/html/" + map.get("page")).forward(
+								getRequest(), getResponse());
 						return;
 					}
-					Thread.currentThread().getContextClassLoader().loadClass(map.get("classLoader").toString());
-					tPlugin = Class.forName(map.get("classLoader").toString()).newInstance();
-					if(tPlugin instanceof IZrlogPlugin){
-						((IZrlogPlugin)tPlugin).install(paramMap);
+					Thread.currentThread().getContextClassLoader()
+							.loadClass(map.get("classLoader").toString());
+					tPlugin = Class.forName(map.get("classLoader").toString())
+							.newInstance();
+					if (tPlugin instanceof IZrlogPlugin) {
+						((IZrlogPlugin) tPlugin).install(paramMap);
 					}
-					setAttr("message", "安装成功,<a href='plugin/start?name="+pName+"'>点击开始运行</a>");
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					setAttr("message", "安装成功,<a href='plugin/start?name="
+							+ pName + "'>点击开始运行</a>");
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.error("plugin install exception ", e);
 				}
-			}
-			else{
+			} else {
 				setAttr("message", "插件已经在运行了");
 			}
 		}
 	}
-	
-	public void download(){
+
+	public void download() {
 		try {
-			ResponseData<File> data=new ResponseData<File>() {};
-			HttpUtil.getResponse(getPara("host")+"/plugin/download?id="+getParaToInt("id"), data, PathKit.getWebRootPath()+"/admin/plugins/");
-			String folerName=data.getT().getName().toString().substring(0,data.getT().getName().toString().indexOf("."));
-			Map<String,Object> map=getPluginMsgByZipFileName(folerName);
+			ResponseData<File> data = new ResponseData<File>() {
+			};
+			HttpUtil.getResponse(getPara("host") + "/plugin/download?id="
+					+ getParaToInt("id"), data, PathKit.getWebRootPath()
+					+ "/admin/plugins/");
+			String folerName = data
+					.getT()
+					.getName()
+					.toString()
+					.substring(0, data.getT().getName().toString().indexOf("."));
+			Map<String, Object> map = getPluginMsgByZipFileName(folerName);
 			setAttr("mTitle", "插件设置");
-			setAttr("sTitle", map.get("desc")+" 设置");
-			getRequest().getRequestDispatcher("/admin/page.jsp?include=plugins/"+folerName+"/html/"+map.get("page")).forward(getRequest(), getResponse());
-			} catch (Exception e) {
-			e.printStackTrace();
+			setAttr("sTitle", map.get("desc") + " 设置");
+			getRequest().getRequestDispatcher(
+					"/admin/page.jsp?include=plugins/" + folerName + "/html/"
+							+ map.get("page")).forward(getRequest(),
+					getResponse());
+		} catch (Exception e) {
+			log.error("download plugin exception ", e);
 		}
-	}
-	
-	private Object getKey(String pluginName,String key){
-		Plugin plugin=Plugin.dao.findFirst("select * from plugin where pluginName=?",pluginName);
-		return new JSONDeserializer<Map<String,Object>>().deserialize(plugin.getStr("content")).get(key);
 	}
 
-	
-	private Map<String,Object> getPluginMsgByZipFileName(String pluginName) throws IOException{
-		String pluginPath=PathKit.getWebRootPath()+"/admin/plugins/"+pluginName+"";
-		String webLibPath=PathKit.getWebRootPath()+"/WEB-INF/";
-		String classPath=PathKit.getWebRootPath()+"/WEB-INF/";
-		ZipUtil.unZip(pluginPath+".zip", pluginPath+"/temp/");
+	private Object getKey(String pluginName, String key) {
+		Plugin plugin = Plugin.dao.findFirst(
+				"select * from plugin where pluginName=?", pluginName);
+		return new JSONDeserializer<Map<String, Object>>().deserialize(
+				plugin.getStr("content")).get(key);
+	}
+
+	private Map<String, Object> getPluginMsgByZipFileName(String pluginName)
+			throws IOException {
+		String pluginPath = PathKit.getWebRootPath() + "/admin/plugins/"
+				+ pluginName + "";
+		String webLibPath = PathKit.getWebRootPath() + "/WEB-INF/";
+		String classPath = PathKit.getWebRootPath() + "/WEB-INF/";
+		ZipUtil.unZip(pluginPath + ".zip", pluginPath + "/temp/");
 		String installStr;
-		installStr = IOUtil.getStringInputStream(new FileInputStream(pluginPath+"/temp/installGuide.txt"));
-		String installArgs[]=installStr.split("\r\n");
-		Map<String,Object> tmap=new HashMap<String, Object>();
-		for(String arg:installArgs){
-			tmap.put(arg.split(":")[0], arg.substring(arg.split(":")[0].length()+1));
+		installStr = IOUtil.getStringInputStream(new FileInputStream(pluginPath
+				+ "/temp/installGuide.txt"));
+		String installArgs[] = installStr.split("\r\n");
+		Map<String, Object> tmap = new HashMap<String, Object>();
+		for (String arg : installArgs) {
+			tmap.put(arg.split(":")[0],
+					arg.substring(arg.split(":")[0].length() + 1));
 		}
-		IOUtil.moveOrCopy(pluginPath+"/temp/html/", pluginPath, false);
-		IOUtil.moveOrCopy(pluginPath+"/temp/lib/", webLibPath, false);
-		IOUtil.moveOrCopy(pluginPath+"/temp/classes/", classPath, false);
-		File[] jarFiles=new File(pluginPath+"/temp/lib/").listFiles();
+		IOUtil.moveOrCopy(pluginPath + "/temp/html/", pluginPath, false);
+		IOUtil.moveOrCopy(pluginPath + "/temp/lib/", webLibPath, false);
+		IOUtil.moveOrCopy(pluginPath + "/temp/classes/", classPath, false);
+		File[] jarFiles = new File(pluginPath + "/temp/lib/").listFiles();
 		try {
 			LoadJarUtil.loadJar(jarFiles);
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			log.error("loadJar error ",e);
 		}
-		Map<String,Object> map=new HashMap<String,Object>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("status", 0);
 		map.put("classLoader", tmap.get("classLoader"));
 		map.put("author", tmap.get("author"));
 		map.put("desc", tmap.get("instruction"));
 		map.put("page", tmap.get("html"));
 		map.put("version", tmap.get("version"));
-		Plugin plugin=new Plugin().set("pluginName", pluginName).set("content", new JSONSerializer().serialize(map)).set("level", -1);
-		Plugin id=Plugin.dao.findFirst("select pluginId from plugin where pluginName=?",pluginName);
-		if(id==null){
+		Plugin plugin = new Plugin().set("pluginName", pluginName)
+				.set("content", new JSONSerializer().serialize(map))
+				.set("level", -1);
+		Plugin id = Plugin.dao.findFirst(
+				"select pluginId from plugin where pluginName=?", pluginName);
+		if (id == null) {
 			plugin.save();
 		}
 		return map;

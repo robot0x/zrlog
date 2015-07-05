@@ -1,6 +1,5 @@
 package com.fzb.blog.controlle;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,6 +17,8 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fzb.blog.model.Comment;
 import com.fzb.common.util.HexaConversionUtil;
@@ -32,6 +33,9 @@ import flexjson.JSONDeserializer;
  */
 public class APIControl extends QueryLogControl {
 
+	private static final Logger log = LoggerFactory
+			.getLogger(APIControl.class);
+	
 	/**
 	 * 多说反向同步接口
 	 */
@@ -51,45 +55,39 @@ public class APIControl extends QueryLogControl {
 				params.put("secret", getValuebyKey("duoshuo_secret"));
 				params.put("limit", 1);
 				params.put("order", "desc");
-				try {
-					Map<String, Object> resp = new JSONDeserializer<Map<String, Object>>()
-							.deserialize(HttpUtil.getResponse(urlPath, params));
-					if ((Integer) resp.get("code") == 0) {
-						List<Map<String, Object>> comments = (List<Map<String, Object>>) resp.get("response");
-						for (Map<String, Object> map : comments) {
-							if (map.get("action").equals("create")) {
-								Map<String, Object> meta = (Map<String, Object>) map.get("meta");
-								new Comment() .set("userIp", meta.get("ip"))
-								.set("userMail", meta.get("author_email"))
-								.set("hide", false) .set("commTime", new Date())
-								.set("userComment", meta.get("message"))
-								.set("userName", meta.get("author_name"))
-								.set("logId", meta.get("thread_key"))
-								.set("userHome", meta.get("author_url")) 
-								.set("td",ParseTools.getDataBySdf( "yyyy-MM-dd HH:mm:ss",
-								meta.get("created_at")))
-								.set("postId", meta.get("post_id"))
-								.save();
-								 
-							} else if(map.get("action").equals("delete")) {
-								List<String> l=(List<String>)map.get("meta");
-								for (String str : l) {
-									Db.update("delete from comment where postID=?",str);
-								}
+				Map<String, Object> resp = new JSONDeserializer<Map<String, Object>>()
+						.deserialize(HttpUtil.getResponse(urlPath, params));
+				if ((Integer) resp.get("code") == 0) {
+					List<Map<String, Object>> comments = (List<Map<String, Object>>) resp.get("response");
+					for (Map<String, Object> map : comments) {
+						if (map.get("action").equals("create")) {
+							Map<String, Object> meta = (Map<String, Object>) map.get("meta");
+							new Comment() .set("userIp", meta.get("ip"))
+							.set("userMail", meta.get("author_email"))
+							.set("hide", false) .set("commTime", new Date())
+							.set("userComment", meta.get("message"))
+							.set("userName", meta.get("author_name"))
+							.set("logId", meta.get("thread_key"))
+							.set("userHome", meta.get("author_url")) 
+							.set("td",ParseTools.getDataBySdf( "yyyy-MM-dd HH:mm:ss",
+							meta.get("created_at")))
+							.set("postId", meta.get("post_id"))
+							.save();
+							 
+						} else if(map.get("action").equals("delete")) {
+							List<String> l=(List<String>)map.get("meta");
+							for (String str : l) {
+								Db.update("delete from comment where postID=?",str);
 							}
-							//System.out.println(map.get("action"));
 						}
 					}
-					//System.out.println(resp);
-					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("status", 200);
-					setAttr("data", map);
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("status", 200);
+				setAttr("data", map);
 			}
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			log.error("doushuo sync error ",e);
 		}
 		
 
@@ -111,7 +109,7 @@ public class APIControl extends QueryLogControl {
 				}
 			}
 		} catch (FileUploadException e) {
-			e.printStackTrace();
+			log.error("parse duoshou param error ",e);
 		}
 		return map;
 

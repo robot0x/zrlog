@@ -95,7 +95,7 @@ public class ZrlogConfig extends JFinalConfig {
 			plugins.add(arp);
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.warn("configPlugin exception ",e);
 		}
 
 	}
@@ -120,7 +120,7 @@ public class ZrlogConfig extends JFinalConfig {
 				
 			}
 		} catch (Exception e) {
-			//log.warn("Not found lock file(/WEB-INF/install.lock), Please visit the http://ip:port/"+JFinal.me().getContextPath()+"/install installation");
+			log.warn("start plugin exception ",e);
 		}
 		// duqu 
 		JFinal.me().getServletContext().setAttribute("system", System.getProperties());

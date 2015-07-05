@@ -4,16 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fzb.blog.util.InstallUtil;
-import com.jfinal.config.Constants;
-import com.jfinal.config.JFinalConfig;
-import com.jfinal.config.Plugins;
 import com.jfinal.core.Controller;
-import com.jfinal.core.JFinal;
-import com.jfinal.core.JFinalFilter;
 import com.jfinal.kit.PathKit;
-import com.jfinal.plugin.activerecord.Config;
-import com.jfinal.plugin.activerecord.DbKit;
-import com.jfinal.plugin.c3p0.C3p0Plugin;
 
 public class InstallControl extends Controller {
 

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
-import javax.swing.text.rtf.RTFEditorKit;
 
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;

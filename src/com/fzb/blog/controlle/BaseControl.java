@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fzb.blog.controlle.api.Constant;
 import com.fzb.blog.model.Link;
 import com.fzb.blog.model.Log;
@@ -22,6 +25,10 @@ import com.jfinal.plugin.ehcache.CacheKit;
 import com.jfinal.plugin.ehcache.CacheName;
 
 public class BaseControl extends Controller implements Constant {
+	
+	private static final Logger log = LoggerFactory
+			.getLogger(BaseControl.class);
+	
 	private String templatePath;
 
 	private Integer rows;

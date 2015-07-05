@@ -3,13 +3,13 @@ package com.fzb.blog.controlle;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.client.ClientProtocolException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fzb.blog.model.Link;
 import com.fzb.common.util.HttpUtil;
@@ -19,6 +19,8 @@ import com.fzb.common.util.ZipUtil;
 import com.jfinal.kit.PathKit;
 
 public class TemplateControl extends ManageControl {
+	private static final Logger LOGGER = LoggerFactory.getLogger(TemplateControl.class);
+	
 	public void delete() {
 		Link.dao.deleteById(getPara(0));
 	}
@@ -94,15 +96,8 @@ public class TemplateControl extends ManageControl {
 					+ "/include/templates/");
 			String folerName=data.getT().getName().toString().substring(0,data.getT().getName().toString().indexOf("."));
 			ZipUtil.unZip(data.getT().toString(), PathKit.getWebRootPath()+ "/include/templates/"+folerName+"/");
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (Exception e) {
+			LOGGER.error("download error ",e);
 		}
 		setAttr("message", "下载模板成功");
 	}

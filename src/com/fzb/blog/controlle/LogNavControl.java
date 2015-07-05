@@ -1,27 +1,29 @@
- package com.fzb.blog.controlle;
- 
- import com.fzb.blog.model.LogNav;
- 
- public class LogNavControl extends ManageControl
- {
-   public void delete()
-   {
-     LogNav.dao.deleteById(getPara(0));
-   }
- 
-   public void queryAll() {
-     renderJson(LogNav.dao.queryAll(getParaToInt("page"),getParaToInt("rows")));
-   }
+package com.fzb.blog.controlle;
+
+import com.fzb.blog.model.LogNav;
+
+public class LogNavControl extends ManageControl {
+	public void delete() {
+		LogNav.dao.deleteById(getPara(0));
+	}
+
+	public void queryAll() {
+		renderJson(LogNav.dao.queryAll(getParaToInt("page"),
+				getParaToInt("rows")));
+	}
 
 	@Override
 	public void add() {
-		new LogNav().set("navName", getPara("navName")).set("url", getPara("url")).set("sort", getParaToInt("sort")).save();
+		new LogNav().set("navName", getPara("navName"))
+				.set("url", getPara("url")).set("sort", getParaToInt("sort"))
+				.save();
 	}
-	
+
 	@Override
 	public void update() {
-		new LogNav().set("navId", getPara("id")).set("navName", getPara("navName")).set("url", getPara("url")).set("sort", getParaToInt("sort")).update();
+		new LogNav().set("navId", getPara("id"))
+				.set("navName", getPara("navName")).set("url", getPara("url"))
+				.set("sort", getParaToInt("sort")).update();
 	}
-   
- }
 
+}
