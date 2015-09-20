@@ -22,10 +22,14 @@ public class BlackListInterceptor extends PrototypeInterceptor {
 		if (ai.getController() instanceof BaseControl) {
 			BaseControl baseControl = (BaseControl) ai.getController();
 			String ipStr = baseControl.getStrValuebyKey("blackList");
-			Set<String> ipSet = new HashSet<String>(Arrays.asList(ipStr.split(",")));
-			String requestIP = WebTools.getRealIp(baseControl.getRequest());
-			if (ipSet.contains(requestIP)) {
-				baseControl.render(JFinal.me().getConstants().getErrorView(403));
+			if (ipStr != null) {
+				Set<String> ipSet = new HashSet<String>(Arrays.asList(ipStr.split(",")));
+				String requestIP = WebTools.getRealIp(baseControl.getRequest());
+				if (ipSet.contains(requestIP)) {
+					baseControl.render(JFinal.me().getConstants().getErrorView(403));
+				} else {
+					ai.invoke();
+				}
 			} else {
 				ai.invoke();
 			}
