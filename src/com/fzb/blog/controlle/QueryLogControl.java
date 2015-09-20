@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fzb.blog.dev.MailUtil;
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Log;
 import com.fzb.blog.model.Type;
@@ -81,6 +82,17 @@ public class QueryLogControl extends BaseControl {
 					.set("commTime", new Date()).set("hide", 1).save();
 		}
 		detail(getPara("logId"));
+		if (getStrValuebyKey("commentEmailNotify") != null
+				&& "on".equals(getStrValuebyKey("commentEmailNotify"))) {
+			if (getStrValuebyKey("mail_to") != null) {
+				try {
+					MailUtil.sendMail(getStrValuebyKey("mail_to"), getStrValuebyKey("title") + " 新的评论",
+							getPara("userMail"));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	public void detail() {

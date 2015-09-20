@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import com.fzb.blog.controlle.APIControl;
 import com.fzb.blog.controlle.InstallControl;
 import com.fzb.blog.controlle.QueryLogControl;
+import com.fzb.blog.incp.BlackListInterceptor;
 import com.fzb.blog.incp.LoginInterceptor;
 import com.fzb.blog.model.Comment;
 import com.fzb.blog.model.Link;
@@ -54,6 +55,7 @@ public class ZrlogConfig extends JFinalConfig {
 		I18N.init("i18n", null, null);
 		con.setError404View("/error/404.html");
 		con.setError500View("/error/500.html");
+		con.setError403View("/error/403.html");
 		con.setUploadedFileSaveDirectory(PathKit.getWebRootPath() + "/attached");
 	}
 
@@ -64,6 +66,7 @@ public class ZrlogConfig extends JFinalConfig {
 	public void configInterceptor(Interceptors incp) {
 		incp.add(new SessionInViewInterceptor());
 		incp.add(new LoginInterceptor());
+		incp.add(new BlackListInterceptor());
 	}
 
 	public void configPlugin(Plugins plugins) {

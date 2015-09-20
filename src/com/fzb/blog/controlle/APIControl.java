@@ -20,6 +20,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fzb.blog.dev.MailUtil;
 import com.fzb.blog.model.Comment;
 import com.fzb.common.util.HexaConversionUtil;
 import com.fzb.common.util.HttpUtil;
@@ -33,9 +34,8 @@ import flexjson.JSONDeserializer;
  */
 public class APIControl extends QueryLogControl {
 
-	private static final Logger log = LoggerFactory
-			.getLogger(APIControl.class);
-	
+	private static final Logger log = LoggerFactory.getLogger(APIControl.class);
+
 	/**
 	 * 多说反向同步接口
 	 */
@@ -47,7 +47,7 @@ public class APIControl extends QueryLogControl {
 		param.remove("signature");
 		try {
 			// check signature
-			if(signature.equals(HmacSHA1Encrypt(mapToQueryStr(param), getStrValuebyKey("duoshuo_secret")))){
+			if (signature.equals(HmacSHA1Encrypt(mapToQueryStr(param), getStrValuebyKey("duoshuo_secret")))) {
 				// 使用签名
 				String urlPath = "http://api.duoshuo.com/log/list.json";
 				Map<String, Object> params = new HashMap<String, Object>();
@@ -62,22 +62,23 @@ public class APIControl extends QueryLogControl {
 					for (Map<String, Object> map : comments) {
 						if (map.get("action").equals("create")) {
 							Map<String, Object> meta = (Map<String, Object>) map.get("meta");
-							new Comment() .set("userIp", meta.get("ip"))
-							.set("userMail", meta.get("author_email"))
-							.set("hide", false) .set("commTime", new Date())
-							.set("userComment", meta.get("message"))
-							.set("userName", meta.get("author_name"))
-							.set("logId", meta.get("thread_key"))
-							.set("userHome", meta.get("author_url")) 
-							.set("td",ParseTools.getDataBySdf( "yyyy-MM-dd HH:mm:ss",
-							meta.get("created_at")))
-							.set("postId", meta.get("post_id"))
-							.save();
-							 
-						} else if(map.get("action").equals("delete")) {
-							List<String> l=(List<String>)map.get("meta");
+							new Comment().set("userIp", meta.get("ip")).set("userMail", meta.get("author_email"))
+									.set("hide", false).set("commTime", new Date())
+									.set("userComment", meta.get("message")).set("userName", meta.get("author_name"))
+									.set("logId", meta.get("thread_key")).set("userHome", meta.get("author_url"))
+									.set("td", ParseTools.getDataBySdf("yyyy-MM-dd HH:mm:ss", meta.get("created_at")))
+									.set("postId", meta.get("post_id")).save();
+							if (getStrValuebyKey("commentEmailNotify") != null
+									&& "on".equals(getStrValuebyKey("commentEmailNotify"))) {
+								if (getStrValuebyKey("mail_to") != null) {
+									MailUtil.sendMail(getStrValuebyKey("mail_to"), getStrValuebyKey("tilte") + "新的评论",
+											meta.get("message").toString());
+								}
+							}
+						} else if (map.get("action").equals("delete")) {
+							List<String> l = (List<String>) map.get("meta");
 							for (String str : l) {
-								Db.update("delete from comment where postID=?",str);
+								Db.update("delete from comment where postID=?", str);
 							}
 						}
 					}
@@ -87,9 +88,8 @@ public class APIControl extends QueryLogControl {
 				setAttr("data", map);
 			}
 		} catch (Exception e) {
-			log.error("doushuo sync error ",e);
+			log.error("doushuo sync error ", e);
 		}
-		
 
 	}
 
@@ -109,7 +109,7 @@ public class APIControl extends QueryLogControl {
 				}
 			}
 		} catch (FileUploadException e) {
-			log.error("parse duoshou param error ",e);
+			log.error("parse duoshou param error ", e);
 		}
 		return map;
 
@@ -134,18 +134,16 @@ public class APIControl extends QueryLogControl {
 		return queryStr;
 	}
 
-	private static String HmacSHA1Encrypt(String encryptText, String encryptKey)
-			throws Exception {
+	private static String HmacSHA1Encrypt(String encryptText, String encryptKey) throws Exception {
 		String HMAC_SHA1_ALGORITHM = "HmacSHA1";
-		SecretKeySpec signingKey = new SecretKeySpec(encryptKey.getBytes(),
-				HMAC_SHA1_ALGORITHM);
+		SecretKeySpec signingKey = new SecretKeySpec(encryptKey.getBytes(), HMAC_SHA1_ALGORITHM);
 		// Get an hmac_sha1 Mac instance and initialise with the signing key
 		Mac mac = Mac.getInstance(HMAC_SHA1_ALGORITHM);
 		mac.init(signingKey);
 		// Compute the hmac
 		byte[] rawHmac = mac.doFinal(encryptText.getBytes());
 		byte[] hexBytes = new Hex().encode(rawHmac);
-		byte hex[] = HexaConversionUtil.hexString2Bytes(new String(hexBytes,"ISO-8859-1"));
+		byte hex[] = HexaConversionUtil.hexString2Bytes(new String(hexBytes, "ISO-8859-1"));
 		return new String(Base64.encodeBase64(hex));
 	}
 
