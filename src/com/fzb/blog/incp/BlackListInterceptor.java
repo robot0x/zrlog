@@ -34,5 +34,8 @@ public class BlackListInterceptor extends PrototypeInterceptor {
 				ai.invoke();
 			}
 		}
+		else{
+			ai.invoke();
+		}
 	}
 }
