@@ -22,12 +22,12 @@ public class InstallControl extends Controller {
 				.testDbConn()) {
 			render("/install/message.jsp");
 		} else {
-			setAttr("errorMsg", "请检查数据信息是否正常");
+			setAttr("errorMsg", "请检查数据信息是否正确，或数据库服务是否启动");
 			render("/install/index.jsp");
 		}
 	}
 
-	public void installJblog() {
+	public void installZrlog() {
 		String home = getRequest().getScheme() + "://"
 				+ getRequest().getHeader("host")
 				+ getRequest().getContextPath() + "/";

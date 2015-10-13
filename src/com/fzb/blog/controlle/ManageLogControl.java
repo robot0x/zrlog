@@ -14,8 +14,8 @@ import com.fzb.blog.model.User;
 import com.fzb.common.util.IOUtil;
 import com.fzb.common.util.ParseTools;
 import com.fzb.io.api.FileManageAPI;
-import com.fzb.yunstore.BucketVO;
-import com.fzb.yunstore.QiniuBucketManageImpl;
+import com.fzb.io.yunstore.BucketVO;
+import com.fzb.io.yunstore.QiniuBucketManageImpl;
 import com.jfinal.kit.PathKit;
 
 public class ManageLogControl extends ManageControl {

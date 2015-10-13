@@ -2,6 +2,7 @@ package com.fzb.blog.config;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -84,18 +85,8 @@ public class ZrlogConfig extends JFinalConfig {
 			C3p0Plugin c3p0Plugin = new C3p0Plugin(getProperty("jdbcUrl"),
 					getProperty("user"), getProperty("password"));
 			plugins.add(c3p0Plugin);
-			ActiveRecordPlugin arp = new ActiveRecordPlugin(c3p0Plugin);
-			arp.addMapping("user", "userId", User.class);
-			arp.addMapping("log", "logId", Log.class);
-			arp.addMapping("type", "typeId", Type.class);
-			arp.addMapping("link", "linkId", Link.class);
-			arp.addMapping("comment", "commentId", Comment.class);
-			arp.addMapping("lognav", "navId", LogNav.class);
-			arp.addMapping("website", "siteId", WebSite.class);
-			arp.addMapping("plugin", "pluginId", Plugin.class);
-			arp.addMapping("tag", "tagId", Tag.class);
 			// 添加表与实体的映射关系
-			plugins.add(arp);
+			plugins.add(getActiveRecordPlugin(c3p0Plugin));
 			
 		} catch (Exception e) {
 			log.warn("configPlugin exception ",e);
@@ -137,5 +128,19 @@ public class ZrlogConfig extends JFinalConfig {
 		routes.add("/install", InstallControl.class);
 		// 后台管理者
 		routes.add(new UserRoutes());
+	}
+	
+	public static ActiveRecordPlugin getActiveRecordPlugin(C3p0Plugin c3p0Plugin){
+		ActiveRecordPlugin arp = new ActiveRecordPlugin("c3p0Plugin"+new Random().nextInt(),c3p0Plugin);
+		arp.addMapping("user", "userId", User.class);
+		arp.addMapping("log", "logId", Log.class);
+		arp.addMapping("type", "typeId", Type.class);
+		arp.addMapping("link", "linkId", Link.class);
+		arp.addMapping("comment", "commentId", Comment.class);
+		arp.addMapping("lognav", "navId", LogNav.class);
+		arp.addMapping("website", "siteId", WebSite.class);
+		arp.addMapping("plugin", "pluginId", Plugin.class);
+		arp.addMapping("tag", "tagId", Tag.class);
+		return arp;
 	}
 }
